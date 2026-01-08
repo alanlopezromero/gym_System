@@ -53,9 +53,7 @@ class Pago(db.Model):
 def dashboard():
     return render_template("dashboard.html")
 
-@app.route("/clientes")
-def clientes():
-    return render_template("clientes.html")
+
 
 @app.route("/test-db")
 def test_db():
