@@ -79,7 +79,8 @@ class Admin(db.Model):
 # -----------------------------
 @app.route("/")
 def dashboard():
-    return render_template("dashboard.html")
+    return render_template("admin/dashboard.html")
+
 
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
