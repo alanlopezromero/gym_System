@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Admin{% endblock %}
+
+{% block content %}
+<h1>Bienvenido, Admin 👋</h1>
+<p>Panel de administración del sistema YGM Arcadia's</p>
+
+<nav>
+    <ul>
+        <li><a href="/admin/usuarios">Usuarios</a></li>
+        <li><a href="/admin/membresias">Membresías</a></li>
+        <li><a href="/admin/pagos">Pagos</a></li>
+    </ul>
+</nav>
+
+<hr>
+
+<a href="/logout">Cerrar sesión</a>
+{% endblock %}
