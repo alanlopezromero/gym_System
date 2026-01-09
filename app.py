@@ -3,7 +3,17 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__)
+import os
+from flask import Flask
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "static")
+)
+
 
 # 🔐 Clave secreta
 app.secret_key = os.environ.get("SECRET_KEY", "clave-dev")
