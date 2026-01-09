@@ -1,17 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>YGM Arcadia's</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-    <h1>VIENVENIDOS A YGM ARCADIA'S</h1>
-    <P>sistema de inventario</P>
-    <a href="/login">
-        <button>iniciar sesión (admin)</button>
-    </a>
-    
+    <div class="container">
+        <h1>VIENVENIDOS A YGM ARCADIA'S</h1>
+        <p>Sistema de inventario</p>
+
+        <a href="/login">
+            <button>Iniciar sesión (Admin)</button>
+        </a>
+    </div>
+
 </body>
 </html>
