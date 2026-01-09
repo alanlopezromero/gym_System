@@ -182,12 +182,16 @@ def mensualidades():
         registros=registros,
         hoy=hoy
     )
-@app.route('/admin/mensualidades/eliminar/<int:id>', methods=['POST'])
+@app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
 def eliminar_mensualidad(id):
+    if "admin_id" not in session:
+        return redirect(url_for("login"))
+
     mensualidad = Mensualidad.query.get_or_404(id)
     db.session.delete(mensualidad)
     db.session.commit()
-    return redirect(url_for('admin_mensualidades'))
+
+    return redirect(url_for("mensualidades"))
 
 
 @app.route("/admin/visitas", methods=["GET", "POST"])
@@ -206,12 +210,16 @@ def visitas():
     visitas = Visita.query.all()
     return render_template("admin/visitas.html", visitas=visitas)
 
-@app.route('/admin/visitas/eliminar/<int:id>', methods=['POST'])
+@app.route("/admin/visitas/eliminar/<int:id>", methods=["POST"])
 def eliminar_visita(id):
+    if "admin_id" not in session:
+        return redirect(url_for("login"))
+
     visita = Visita.query.get_or_404(id)
     db.session.delete(visita)
     db.session.commit()
-    return redirect(url_for('admin_visitas'))
+
+    return redirect(url_for("visitas"))
 
 
 
