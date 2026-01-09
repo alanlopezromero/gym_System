@@ -128,65 +128,72 @@ th {
     flex-wrap: wrap;
     justify-content: center;
 }
-
 /* ====== CONTENEDOR ADMIN ====== */
 .admin-container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 30px;
-    background: rgba(0, 0, 0, 0.65);
-    border-radius: 15px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    width: 95%;
+    max-width: 1600px;
+    margin: 30px auto;
+    padding: 35px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 18px;
+    box-shadow: 0 0 35px rgba(0,0,0,0.7);
     color: #fff;
 }
 
 /* ====== TITULOS ====== */
 .admin-container h1 {
     text-align: center;
-    font-size: 36px;
-    margin-bottom: 25px;
-    letter-spacing: 1px;
+    font-size: 40px;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
 }
 
 /* ====== FORMULARIOS ====== */
 .form-card {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 35px;
 }
 
 .form-card input {
-    padding: 14px;
-    font-size: 16px;
-    border-radius: 8px;
+    padding: 16px;
+    font-size: 17px;
+    border-radius: 10px;
     border: none;
     outline: none;
 }
 
 .form-card button {
     grid-column: 1 / -1;
-    padding: 14px;
-    font-size: 18px;
+    padding: 16px;
+    font-size: 20px;
     background: linear-gradient(135deg, #ff9800, #ff5722);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.3s ease;
 }
 
 .form-card button:hover {
-    transform: scale(1.03);
+    transform: scale(1.04);
     background: linear-gradient(135deg, #ff5722, #ff9800);
 }
 
-/* ====== TABLAS GRANDES ====== */
+/* ====== TABLA CONTENEDOR ====== */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* ====== TABLAS ====== */
 table {
     width: 100%;
+    min-width: 900px;
     border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 17px;
+    margin-top: 25px;
+    font-size: 18px;
 }
 
 thead {
@@ -194,34 +201,35 @@ thead {
 }
 
 thead th {
-    padding: 16px;
+    padding: 18px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    text-align: center;
 }
 
 tbody tr {
-    background: rgba(255, 255, 255, 0.1);
-    transition: 0.2s;
+    background: rgba(255, 255, 255, 0.08);
+    transition: 0.25s ease;
 }
 
 tbody tr:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.18);
 }
 
 tbody td {
-    padding: 14px;
+    padding: 16px;
     text-align: center;
 }
 
 /* ====== ESTADOS ====== */
 .vencido {
-    background: rgba(244, 67, 54, 0.8) !important;
+    background: rgba(244, 67, 54, 0.85) !important;
     color: #fff;
     font-weight: bold;
 }
 
 .alerta {
-    background: rgba(255, 193, 7, 0.8) !important;
+    background: rgba(255, 193, 7, 0.85) !important;
     color: #000;
     font-weight: bold;
 }
@@ -229,15 +237,16 @@ tbody td {
 /* ====== BOTON VOLVER ====== */
 .admin-container a {
     display: inline-block;
-    margin-top: 25px;
-    padding: 10px 18px;
-    background: #444;
+    margin-top: 30px;
+    padding: 12px 22px;
+    background: #333;
     color: white;
     text-decoration: none;
-    border-radius: 8px;
-    transition: 0.3s;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: 0.3s ease;
 }
 
 .admin-container a:hover {
-    background: #222;
+    background: #111;
 }

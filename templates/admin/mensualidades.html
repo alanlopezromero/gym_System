@@ -18,42 +18,45 @@
         <button type="submit">Registrar</button>
     </form>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Monto</th>
-                <th>Pago</th>
-                <th>Vence</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for m in registros %}
-            <tr class="
-                {% if m.fecha_vencimiento < hoy %}
-                    vencido
-                {% elif (m.fecha_vencimiento - hoy).days <= 2 %}
-                    alerta
-                {% endif %}
-            ">
-                <td>{{ m.nombre }} {{ m.apellidos }}</td>
-                <td>${{ m.monto }}</td>
-                <td>{{ m.fecha_pago }}</td>
-                <td>{{ m.fecha_vencimiento }}</td>
-                <td>
+    <!-- CONTENEDOR DE TABLA -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Monto</th>
+                    <th>Fecha de Pago</th>
+                    <th>Fecha de Vencimiento</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in registros %}
+                <tr class="
                     {% if m.fecha_vencimiento < hoy %}
-                        VENCIDO
+                        vencido
                     {% elif (m.fecha_vencimiento - hoy).days <= 2 %}
-                        POR VENCER
-                    {% else %}
-                        ACTIVO
+                        alerta
                     {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                ">
+                    <td>{{ m.nombre }} {{ m.apellidos }}</td>
+                    <td>${{ m.monto }}</td>
+                    <td>{{ m.fecha_pago }}</td>
+                    <td>{{ m.fecha_vencimiento }}</td>
+                    <td>
+                        {% if m.fecha_vencimiento < hoy %}
+                            ❌ VENCIDO
+                        {% elif (m.fecha_vencimiento - hoy).days <= 2 %}
+                            ⚠️ POR VENCER
+                        {% else %}
+                            ✅ ACTIVO
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <a href="/admin">⬅ Volver al panel</a>
 </div>
