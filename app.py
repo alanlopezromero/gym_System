@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from datetime import date, timedelta
 import os
 
 # -----------------------------
@@ -148,7 +149,7 @@ def test_db():
     except Exception as e:
         return f"Error: {e}"
     
-from datetime import date, timedelta
+
 
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
