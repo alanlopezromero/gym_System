@@ -266,3 +266,80 @@ tbody td {
     transform: scale(1.05);
     background: linear-gradient(135deg, #c62828, #e53935);
 }
+
+/* ===== PANEL ADMIN ===== */
+
+.admin-panel {
+    min-height: 100vh;
+    padding: 40px 20px;
+    background: linear-gradient(
+        rgba(0,0,0,0.65),
+        rgba(0,0,0,0.65)
+    ),
+    url("/static/img/gym_arcadias.jpg") center/cover no-repeat;
+    color: #fff;
+    text-align: center;
+}
+
+/* ===== HEADER ===== */
+
+.admin-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.admin-header p {
+    font-size: 1.1rem;
+    color: #ddd;
+    margin-bottom: 40px;
+}
+
+/* ===== NAVBAR ===== */
+
+.admin-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto 40px;
+}
+
+.admin-nav a {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 18px;
+    border-radius: 14px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(6px);
+}
+
+.admin-nav a:hover {
+    background: #ffb703;
+    color: #000;
+    transform: translateY(-4px);
+}
+
+/* ===== LOGOUT ===== */
+
+.admin-actions {
+    margin-top: 30px;
+}
+
+.logout-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    border-radius: 30px;
+    background: #d62828;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background: #a4161a;
+}

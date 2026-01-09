@@ -3,22 +3,26 @@
 {% block title %}Panel Admin{% endblock %}
 
 {% block content %}
- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<h1>Bienvenido, Admin 👋</h1>
-<p>Panel de administración del sistema YGM Arcadia's</p>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-<nav>
-    <ul>
-        <li><a href="/admin/usuarios">Usuarios</a></li>
-        <li><a href="/admin/membresias">Membresías</a></li>
-        <li><a href="/admin/pagos">Pagos</a></li>
-        <li><a href="{{ url_for('mensualidades') }}">Mensualidades</a></li>
-        <li><a href="{{ url_for('visitas') }}">Visitas</a></li>
+<div class="admin-panel">
 
-    </ul>
-</nav>
+    <header class="admin-header">
+        <h1>Bienvenido, Admin 👋</h1>
+        <p>Panel de administración · YGM Arcadia's</p>
+    </header>
 
-<hr>
+    <nav class="admin-nav">
+        <a href="/admin/usuarios">👤 Usuarios</a>
+        <a href="/admin/membresias">🏋️ Membresías</a>
+        <a href="/admin/pagos">💳 Pagos</a>
+        <a href="{{ url_for('mensualidades') }}">📆 Mensualidades</a>
+        <a href="{{ url_for('visitas') }}">🚶 Visitas</a>
+    </nav>
 
-<a href="/logout">Cerrar sesión</a>
+    <div class="admin-actions">
+        <a href="/logout" class="logout-btn">Cerrar sesión</a>
+    </div>
+
+</div>
 {% endblock %}
