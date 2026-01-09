@@ -1,10 +1,63 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
 body {
     min-height: 100vh;
-    background: 
-        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-        url("/static/img/gym_arcadias.jpg") no-repeat center center/cover;
+    background:
+        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+        url("/static/img/gym_arcadias.jpg") no-repeat center center / cover;
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     color: #ffffff;
+}
+
+.container {
+    max-width: 600px;
+    width: 100%;
+    padding: 50px 40px;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 16px;
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
+}
+
+/* TITULO */
+.container h1 {
+    font-size: 2.8rem;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* TEXTO */
+.container p {
+    font-size: 1.3rem;
+    margin-bottom: 40px;
+    color: #dddddd;
+}
+
+/* BOTÓN */
+.container button {
+    padding: 15px 50px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 30px;
+    background: #e63946;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+/* HOVER */
+.container button:hover {
+    background: #ff4757;
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.9);
 }
