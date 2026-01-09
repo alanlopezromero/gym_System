@@ -1,22 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Admin Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin | YGM Arcadia's</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Panel Admin - Login</h2>
 
-    <form method="POST">
-    <input name="usuario" placeholder="Usuario">
-    <input name="password" type="password" placeholder="Contraseña">
-    <button>Entrar</button>
-    </form>
+    <div class="container">
+        <h1>Panel Admin</h1>
+        <p>Inicia sesión para continuar</p>
 
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="error">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
 
-    {% with messages = get_flashed_messages() %}
-      {% for msg in messages %}
-        <p style="color:red;">{{ msg }}</p>
-      {% endfor %}
-    {% endwith %}
+        <form method="POST">
+            <input type="text" name="usuario" placeholder="Usuario" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
+
+            <button type="submit">Entrar</button>
+        </form>
+
+        <a href="/" class="back">← Volver al inicio</a>
+    </div>
+
 </body>
 </html>

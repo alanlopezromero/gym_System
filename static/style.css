@@ -61,3 +61,38 @@ body {
     transform: scale(1.08);
     box-shadow: 0 0 20px rgba(255, 71, 87, 0.9);
 }
+/*ESTILOS DE EL LOGIN*/
+/* INPUTS */
+.container input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 30px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* MENSAJE ERROR */
+.error {
+    background: rgba(255, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    color: #ffb3b3;
+    font-weight: bold;
+}
+
+/* LINK VOLVER */
+.back {
+    display: block;
+    margin-top: 20px;
+    color: #cccccc;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.back:hover {
+    color: #ffffff;
+}
