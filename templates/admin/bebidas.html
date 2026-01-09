@@ -39,6 +39,10 @@
         >
 
         <button type="submit">Registrar venta</button>
+
+        action="{{ url_for('eliminar_bebida', id=v.id) }}"
+        onsubmit="return confirm('¿Eliminar este registro?');">
+        <button type="submit" class="btn-eliminar">🗑 Eliminar</button>
     </form>
 
     <a href="{{ url_for('admin_dashboard') }}">⬅ Volver al panel</a>
