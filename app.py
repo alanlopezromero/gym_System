@@ -68,6 +68,7 @@ def index():
     return render_template("index.html")
 
 # Login admin
+# Login admin
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -78,15 +79,16 @@ def login():
 
         if admin and check_password_hash(admin.password, password):
             session["admin_id"] = admin.id
-            return redirect(url_for("admin_panel"))
+            return redirect(url_for("admin_dashboard"))  # ✅ AQUÍ
         else:
             flash("Usuario o contraseña incorrectos ❌")
 
     return render_template("login.html")
 
+
 # Panel admin (PROTEGIDO)
 @app.route("/admin")
-def admin_panel():
+def admin_dashboard():
     if "admin_id" not in session:
         return redirect(url_for("login"))
 
