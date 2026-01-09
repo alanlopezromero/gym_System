@@ -58,6 +58,10 @@ class Admin(db.Model):
     usuario = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
+with app.app_context():
+    db.create_all()
+
+
 # -----------------------------
 # RUTAS
 # -----------------------------
