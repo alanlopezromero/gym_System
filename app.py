@@ -7,12 +7,22 @@ import os
 # -----------------------------
 # CONFIGURACIÓN
 # -----------------------------
+
+# -----------------------------
+# MODELOS
+# -----------------------------
+
 app = Flask(__name__)
+app.secret_key = "clave_super_secreta"
+
+
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
-# Base de datos (Render o local)
+
+# Detecta la base de datos en Render o usa SQLite local
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
+# Compatibilidad con SQLAlchemy
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
@@ -21,9 +31,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-# -----------------------------
-# MODELOS
-# -----------------------------
+
 class Usuario(db.Model):
     __tablename__ = "usuarios"
     id = db.Column(db.Integer, primary_key=True)
