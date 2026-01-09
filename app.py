@@ -62,6 +62,23 @@ with app.app_context():
     db.create_all()
 
 
+from werkzeug.security import generate_password_hash
+
+with app.app_context():
+    db.create_all()
+
+    admin = Admin.query.filter_by(usuario="admin").first()
+    if not admin:
+        admin = Admin(
+            usuario="admin",
+            password=generate_password_hash("admin123")
+        )
+        db.session.add(admin)
+        db.session.commit()
+        print("✅ Admin creado")
+
+
+
 # -----------------------------
 # RUTAS
 # -----------------------------
@@ -71,7 +88,7 @@ with app.app_context():
 def index():
     return render_template("index.html")
 
-# Login admin
+
 # Login admin
 @app.route("/login", methods=["GET", "POST"])
 def login():
