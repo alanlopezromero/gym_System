@@ -151,7 +151,7 @@ def test_db():
     
 
 
-@app.route("/templates/mensualidades", methods=["GET", "POST"])
+@app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
         return redirect(url_for("login"))
@@ -178,12 +178,12 @@ def mensualidades():
     registros = Mensualidad.query.all()
 
     return render_template(
-        "templates/mensualidades.html",
+        "admin/mensualidades.html",
         registros=registros,
         hoy=hoy
     )
 
-@app.route("/templates/visitas", methods=["GET", "POST"])
+@app.route("/admin/visitas", methods=["GET", "POST"])
 def visitas():
     if "admin_id" not in session:
         return redirect(url_for("login"))
@@ -197,7 +197,7 @@ def visitas():
         db.session.commit()
 
     visitas = Visita.query.all()
-    return render_template("templates/visitas.html", visitas=visitas)
+    return render_template("admin/visitas.html", visitas=visitas)
 
 
 
