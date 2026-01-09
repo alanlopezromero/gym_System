@@ -1,22 +1,43 @@
-<h1>Registro de Visitas</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Visitas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
 
-<form method="POST">
-    <input type="text" name="nombre" placeholder="Nombre">
-    <input type="number" step="0.01" name="monto" placeholder="Pago">
-    <button>Registrar visita</button>
-</form>
+    <h1>Registro de Visitas</h1>
 
-<table>
-    <tr>
-        <th>Nombre</th>
-        <th>Pago</th>
-        <th>Fecha</th>
-    </tr>
-    {% for v in visitas %}
-    <tr>
-        <td>{{ v.nombre }}</td>
-        <td>${{ v.monto }}</td>
-        <td>{{ v.fecha }}</td>
-    </tr>
-    {% endfor %}
-</table>
+    <!-- Botón regresar al panel admin -->
+    <a href="{{ url_for('admin_dashboard') }}" class="btn-volver">
+        ⬅ Volver al Panel Admin
+    </a>
+
+    <form method="POST" class="form-visitas">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="number" step="0.01" name="monto" placeholder="Pago" required>
+        <button type="submit">Registrar visita</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Pago</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in visitas %}
+            <tr>
+                <td>{{ v.nombre }}</td>
+                <td>${{ v.monto }}</td>
+                <td>{{ v.fecha.strftime('%d/%m/%Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
