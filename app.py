@@ -40,7 +40,7 @@ class Usuario(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     contrasena = db.Column(db.String(200), nullable=False)
 
-class bebidas(db.Model):
+class Bebida(db.Model):
     __tablename__ = "bebidas"
     id = db. Column(db.Integer,primary_key=True)
     nombre_producto = db.Column(db.String(50), nullable=False)
@@ -223,9 +223,10 @@ def bebidas_view():
     if request.method == "POST":
         nombre = request.form["producto"]
         cantidad = request.form["cantidad"]
-        monto = request.form["precio"]
+        monto = float(request.form["precio"])
 
-        nueva_bebida = bebidas(
+
+        nueva_bebida = Bebida(
             nombre_producto=nombre,
             produc_cantidad=cantidad,
             monto=monto
@@ -236,7 +237,7 @@ def bebidas_view():
 
         return redirect(url_for("bebidas_view"))
 
-    registros = bebidas.query.order_by(bebidas.id.desc()).all()
+    registros = Bebida.query.order_by(Bebida.id.desc()).all()
 
     return render_template(
         "admin/bebidas.html",
@@ -248,7 +249,7 @@ def eliminar_bebida(id):
     if "admin_id" not in session:
         return redirect(url_for("login"))
 
-    bebida = bebidas.query.get_or_404(id)
+    bebida = Bebida.query.get_or_404(id)
     db.session.delete(bebida)
     db.session.commit()
 

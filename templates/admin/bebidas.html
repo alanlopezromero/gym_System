@@ -12,9 +12,8 @@
     <h1>Registro de Ventas</h1>
     <p>Bebidas · Scoop de proteína · Scoop de pre entreno</p>
 
-    <!-- FORMULARIO -->
-    <form method="POST" class="form-card">
-
+    <!-- FORMULARIO PARA AGREGAR VENTA -->
+    <form method="POST" class="form-card" action="{{ url_for('bebidas_view') }}">
         <input 
             type="text" 
             name="producto" 
@@ -39,12 +38,36 @@
         >
 
         <button type="submit">Registrar venta</button>
-
-        action="{{ url_for('eliminar_bebida', id=v.id) }}"
-        onsubmit="return confirm('¿Eliminar este registro?');">
-        <button type="submit" class="btn-eliminar">🗑 Eliminar</button>
     </form>
 
+    <hr>
+
+    <!-- TABLA DE REGISTROS -->
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+        </tr>
+        {% for v in registros %}
+        <tr>
+            <td>{{ v.id }}</td>
+            <td>{{ v.nombre_producto }}</td>
+            <td>{{ v.produc_cantidad }}</td>
+            <td>${{ "%.2f"|format(v.monto) }}</td>
+            <td>
+                <!-- FORMULARIO PARA ELIMINAR -->
+                <form method="POST" action="{{ url_for('eliminar_bebida', id=v.id) }}" onsubmit="return confirm('¿Eliminar este registro?');">
+                    <button type="submit" class="btn-eliminar">🗑 Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
     <a href="{{ url_for('admin_dashboard') }}">⬅ Volver al panel</a>
 </div>
 
