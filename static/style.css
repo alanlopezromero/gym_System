@@ -96,3 +96,35 @@ body {
 .back:hover {
     color: #ffffff;
 }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background: #111;
+}
+
+.vencido {
+    background: rgba(255, 0, 0, 0.35);
+    color: white;
+}
+
+.alerta {
+    background: rgba(255, 165, 0, 0.35);
+    color: white;
+}
+
+.form-card {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}

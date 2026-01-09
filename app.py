@@ -58,6 +58,24 @@ class Admin(db.Model):
     usuario = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
+class Mensualidad(db.Model):
+    __tablename__ = "mensualidades"
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), nullable=False)
+    apellidos = db.Column(db.String(80), nullable=False)
+    monto = db.Column(db.Float, nullable=False)
+    fecha_pago = db.Column(db.Date, nullable=False)
+    fecha_vencimiento = db.Column(db.Date, nullable=False)
+
+class Visita(db.Model):
+    __tablename__ = "visitas"
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    monto = db.Column(db.Float, nullable=False)
+    fecha = db.Column(db.Date, default=date.today)
+
+
+
 with app.app_context():
     db.create_all()
 
@@ -129,6 +147,58 @@ def test_db():
         return "Conexión a la base de datos exitosa ✅"
     except Exception as e:
         return f"Error: {e}"
+    
+from datetime import date, timedelta
+
+@app.route("/admin/mensualidades", methods=["GET", "POST"])
+def mensualidades():
+    if "admin_id" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        nombre = request.form["nombre"]
+        apellidos = request.form["apellidos"]
+        monto = request.form["monto"]
+        fecha_pago = datetime.strptime(request.form["fecha_pago"], "%Y-%m-%d").date()
+
+        fecha_vencimiento = fecha_pago + timedelta(days=30)
+
+        nueva = Mensualidad(
+            nombre=nombre,
+            apellidos=apellidos,
+            monto=monto,
+            fecha_pago=fecha_pago,
+            fecha_vencimiento=fecha_vencimiento
+        )
+        db.session.add(nueva)
+        db.session.commit()
+
+    hoy = date.today()
+    registros = Mensualidad.query.all()
+
+    return render_template(
+        "admin/mensualidades.html",
+        registros=registros,
+        hoy=hoy
+    )
+
+@app.route("/admin/visitas", methods=["GET", "POST"])
+def visitas():
+    if "admin_id" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        visita = Visita(
+            nombre=request.form["nombre"],
+            monto=request.form["monto"]
+        )
+        db.session.add(visita)
+        db.session.commit()
+
+    visitas = Visita.query.all()
+    return render_template("admin/visitas.html", visitas=visitas)
+
+
 
 # -----------------------------
 # RUN
