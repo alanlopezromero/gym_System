@@ -250,3 +250,19 @@ tbody td {
 .admin-container a:hover {
     background: #111;
 }
+
+.btn-eliminar {
+    background: linear-gradient(135deg, #e53935, #c62828);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.btn-eliminar:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #c62828, #e53935);
+}

@@ -28,6 +28,7 @@
                     <th>Fecha de Pago</th>
                     <th>Fecha de Vencimiento</th>
                     <th>Estado</th>
+                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -51,6 +52,13 @@
                         {% else %}
                             ✅ ACTIVO
                         {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST"
+                              action="{{ url_for('eliminar_mensualidad', id=m.id) }}"
+                              onsubmit="return confirm('¿Eliminar esta mensualidad?');">
+                            <button type="submit" class="btn-eliminar">🗑 Eliminar</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
