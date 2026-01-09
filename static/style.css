@@ -1,3 +1,4 @@
+/* ===== RESET Y BASE ===== */
 * {
     margin: 0;
     padding: 0;
@@ -5,11 +6,9 @@
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* ===== BODY SIN FONDO GLOBAL ===== */
 body {
     min-height: 100vh;
-    background:
-        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-        url("/static/img/gym_arcadias.jpg") no-repeat center center / cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,6 +16,29 @@ body {
     color: #ffffff;
 }
 
+/* ===== FONDO PARA INICIO (más claro) ===== */
+.home-bg {
+    min-height: 100vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), /* más transparente */
+        url("/static/img/gym_arcadias.jpg") no-repeat center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+}
+
+/* ===== FONDO PARA ADMIN / TABLAS (más oscuro) ===== */
+.admin-bg {
+    min-height: 100vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), /* más oscuro */
+        url("/static/img/gym_arcadias.jpg") no-repeat center/cover;
+    color: #fff;
+}
+
+/* ===== CONTENEDORES ===== */
 .container {
     max-width: 600px;
     width: 100%;
@@ -55,13 +77,12 @@ body {
     transition: all 0.3s ease;
 }
 
-/* HOVER */
 .container button:hover {
     background: #ff4757;
     transform: scale(1.08);
     box-shadow: 0 0 20px rgba(255, 71, 87, 0.9);
 }
-/*ESTILOS DE EL LOGIN*/
+
 /* INPUTS */
 .container input {
     width: 100%;
@@ -97,97 +118,12 @@ body {
     color: #ffffff;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 30px;
-}
-
-th, td {
-    padding: 12px;
-    text-align: center;
-}
-
-th {
-    background: #111;
-}
-
-.vencido {
-    background: rgba(255, 0, 0, 0.35);
-    color: white;
-}
-
-.alerta {
-    background: rgba(255, 165, 0, 0.35);
-    color: white;
-}
-
-.form-card {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-/* ====== CONTENEDOR ADMIN ====== */
-.admin-container {
-    width: 95%;
-    max-width: 1600px;
-    margin: 30px auto;
-    padding: 35px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 18px;
-    box-shadow: 0 0 35px rgba(0,0,0,0.7);
-    color: #fff;
-}
-
-/* ====== TITULOS ====== */
-.admin-container h1 {
-    text-align: center;
-    font-size: 40px;
-    margin-bottom: 30px;
-    letter-spacing: 2px;
-}
-
-/* ====== FORMULARIOS ====== */
-.form-card {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 18px;
-    margin-bottom: 35px;
-}
-
-.form-card input {
-    padding: 16px;
-    font-size: 17px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-}
-
-.form-card button {
-    grid-column: 1 / -1;
-    padding: 16px;
-    font-size: 20px;
-    background: linear-gradient(135deg, #ff9800, #ff5722);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.form-card button:hover {
-    transform: scale(1.04);
-    background: linear-gradient(135deg, #ff5722, #ff9800);
-}
-
-/* ====== TABLA CONTENEDOR ====== */
+/* ===== TABLAS ===== */
 .table-wrapper {
     width: 100%;
     overflow-x: auto;
 }
 
-/* ====== TABLAS ====== */
 table {
     width: 100%;
     min-width: 900px;
@@ -221,7 +157,7 @@ tbody td {
     text-align: center;
 }
 
-/* ====== ESTADOS ====== */
+/* ===== ESTADOS ===== */
 .vencido {
     background: rgba(244, 67, 54, 0.85) !important;
     color: #fff;
@@ -234,23 +170,58 @@ tbody td {
     font-weight: bold;
 }
 
-/* ====== BOTON VOLVER ====== */
-.admin-container a {
-    display: inline-block;
-    margin-top: 30px;
-    padding: 12px 22px;
-    background: #333;
-    color: white;
-    text-decoration: none;
+/* ===== FORMULARIOS ADMIN ===== */
+.admin-container {
+    width: 95%;
+    max-width: 1600px;
+    margin: 30px auto;
+    padding: 35px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 18px;
+    box-shadow: 0 0 35px rgba(0,0,0,0.7);
+    color: #fff;
+}
+
+.admin-container h1 {
+    text-align: center;
+    font-size: 40px;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+.form-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 35px;
+}
+
+.form-card input {
+    padding: 16px;
+    font-size: 17px;
     border-radius: 10px;
-    font-size: 16px;
+    border: none;
+    outline: none;
+}
+
+.form-card button {
+    grid-column: 1 / -1;
+    padding: 16px;
+    font-size: 20px;
+    background: linear-gradient(135deg, #ff9800, #ff5722);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
     transition: 0.3s ease;
 }
 
-.admin-container a:hover {
-    background: #111;
+.form-card button:hover {
+    transform: scale(1.04);
+    background: linear-gradient(135deg, #ff5722, #ff9800);
 }
 
+/* BOTONES ELIMINAR */
 .btn-eliminar {
     background: linear-gradient(135deg, #e53935, #c62828);
     color: white;
@@ -267,22 +238,34 @@ tbody td {
     background: linear-gradient(135deg, #c62828, #e53935);
 }
 
-/* ===== PANEL ADMIN ===== */
+/* ===== ENLACES ===== */
+.admin-container a {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 22px;
+    background: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: 0.3s ease;
+}
 
+.admin-container a:hover {
+    background: #111;
+}
+
+/* ===== PANEL ADMIN ===== */
 .admin-panel {
     min-height: 100vh;
     padding: 40px 20px;
-    background: linear-gradient(
-        rgba(0,0,0,0.65),
-        rgba(0,0,0,0.65)
-    ),
-    url("/static/img/gym_arcadias.jpg") center/cover no-repeat;
+    background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+                url("/static/img/gym_arcadias.jpg") center/cover no-repeat;
     color: #fff;
     text-align: center;
 }
 
-/* ===== HEADER ===== */
-
+/* ===== HEADER ADMIN ===== */
 .admin-header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
@@ -294,8 +277,7 @@ tbody td {
     margin-bottom: 40px;
 }
 
-/* ===== NAVBAR ===== */
-
+/* ===== NAVBAR ADMIN ===== */
 .admin-nav {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -324,7 +306,6 @@ tbody td {
 }
 
 /* ===== LOGOUT ===== */
-
 .admin-actions {
     margin-top: 30px;
 }
