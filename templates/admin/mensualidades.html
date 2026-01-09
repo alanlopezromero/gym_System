@@ -42,8 +42,9 @@
                 ">
                     <td>{{ m.nombre }} {{ m.apellidos }}</td>
                     <td>${{ m.monto }}</td>
-                    <td>{{ m.fecha_pago }}</td>
-                    <td>{{ m.fecha_vencimiento }}</td>
+                    <td>{{ m.fecha_pago.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ m.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
+
                     <td>
                         {% if m.fecha_vencimiento < hoy %}
                             ❌ VENCIDO

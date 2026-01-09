@@ -40,18 +40,6 @@ class Usuario(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     contrasena = db.Column(db.String(200), nullable=False)
 
-class Membresia(db.Model):
-    __tablename__ = "membresias"
-    id = db.Column(db.Integer, primary_key=True)
-    tipo = db.Column(db.String(50), nullable=False)
-    precio = db.Column(db.Float, nullable=False)
-
-class Pago(db.Model):
-    __tablename__ = "pagos"
-    id = db.Column(db.Integer, primary_key=True)
-    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=False)
-    membresia_id = db.Column(db.Integer, db.ForeignKey("membresias.id"), nullable=False)
-    fecha = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Admin(db.Model):
     __tablename__ = "admins"
