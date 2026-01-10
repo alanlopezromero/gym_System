@@ -17,47 +17,48 @@
         <button type="submit">Registrar visita</button>
     </form>
 
-    <!-- Tabla -->
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Pago</th>
-                <th>Fecha</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for v in visitas %}
-            <tr>
-                <td>{{ v.nombre }}</td>
-                <td>${{ v.monto }}</td>
-                <td>{{ v.fecha.strftime('%d/%m/%Y') }}</td>
-                <td>
-                    <form method="POST"
-                          action="{{ url_for('eliminar_visita', id=v.id) }}"
-                          onsubmit="return confirm('¿Eliminar este registro?');">
-                        <button type="submit" class="btn-eliminar">🗑 Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- TABLA -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Pago</th>
+                    <th>Fecha</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in visitas %}
+                <tr>
+                    <td>{{ v.nombre }}</td>
+                    <td>${{ v.monto }}</td>
+                    <td>{{ v.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <form method="POST"
+                              action="{{ url_for('eliminar_visita', id=v.id) }}"
+                              onsubmit="return confirm('¿Eliminar este registro?');">
+                            <button type="submit" class="btn-eliminar">🗑 Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <a href="{{ url_for('admin_dashboard') }}">⬅ Volver al panel</a>
-</div>
-!-- TOTAL (UNA SOLA VEZ) -->
+    <!-- TOTAL (UNA SOLA VEZ, ABAJO) -->
     <div class="total-box">
-        <h2>Total Visitas</h2>
+        <h2>Total visitas</h2>
         <h1>$<span id="total-visitas">0.00</span></h1>
     </div>
 
+    <a href="{{ url_for('admin_dashboard') }}">⬅ Volver al panel</a>
 </div>
 
 <!-- JS TIEMPO REAL -->
 <script>
-function cargarTotalVistas() {
+function cargarTotalVisitas() {
     fetch("/admin/visitas/total")
         .then(res => res.json())
         .then(data => {
