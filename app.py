@@ -243,7 +243,7 @@ def total_visitas():
         return {"total": 0}
 
     total = db.session.query(
-        db.func.sum(visitas.monto)
+        db.func.sum(Visita.monto)
     ).scalar() or 0
 
     return {"total": round(total, 2)}
