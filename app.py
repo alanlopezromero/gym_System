@@ -89,7 +89,7 @@ from werkzeug.security import generate_password_hash
 with app.app_context():
     db.create_all()
 
-    admin = Admin.query.filter_by(usuario="admin").first()
+    admin = Admin.query.filter_by(usuario="adminJuan").first()
     if not admin:
         admin = Admin(
             usuario="adminJuan",
