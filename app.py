@@ -47,6 +47,14 @@ class Bebida(db.Model):
     produc_cantidad = db.Column(db.Integer, nullable=False)
     monto = db.Column(db.Float,nullable=False)
 
+class   producto(db.Model):
+    __tablename__="productos"
+    id = db.Column(db.Integer,primary_key=True)
+    nombre_producto = db.Column(db.String(50), nullable=False)
+    produc_cantidad = db.Column(db.Integer, nullable=False)
+    monto = db.Column(db.Float,nullable=False)
+
+
 class Admin(db.Model):
     __tablename__ = "admins"
     id = db.Column(db.Integer, primary_key=True)
@@ -255,6 +263,46 @@ def eliminar_bebida(id):
 
     return redirect(url_for("bebidas_view"))
 
+
+@app.route("/admin/productos", methods=["GET", "POST"])
+def productos():
+    if "admin_id" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        nombre = request.form["producto"]
+        cantidad = request.form["cantidad"]
+        monto = float(request.form["precio"])
+
+
+        nueva_producto= productos(
+            nombre_producto=nombre,
+            produc_cantidad=cantidad,
+            monto=monto
+        )
+
+        db.session.add(nueva_producto)
+        db.session.commit()
+
+        return redirect(url_for("productos"))
+
+    registros = productos.query.order_by(productos.id.desc()).all()
+
+    return render_template(
+        "admin/.html",
+        registros=registros
+    )
+
+@app.route("/admin/productos/eliminar/<int:id>", methods=["POST"])
+def eliminar_producto(id):
+    if "admin_id" not in session:
+        return redirect(url_for("login"))
+
+    productos = productos.query.get_or_404(id)
+    db.session.delete(productos)
+    db.session.commit()
+
+    return redirect(url_for("productos"))
 
 
 
