@@ -263,6 +263,7 @@ def eliminar_bebida(id):
     db.session.commit()
 
     return redirect(url_for("bebidas_view"))
+
 @app.route("/admin/productos", methods=["GET", "POST"])
 def productos_view():
     if "admin_id" not in session:
