@@ -47,6 +47,27 @@
 
     <a href="{{ url_for('admin_dashboard') }}">⬅ Volver al panel</a>
 </div>
+!-- TOTAL (UNA SOLA VEZ) -->
+    <div class="total-box">
+        <h2>Total Visitas</h2>
+        <h1>$<span id="total-visitas">0.00</span></h1>
+    </div>
+
+</div>
+
+<!-- JS TIEMPO REAL -->
+<script>
+function cargarTotalVistas() {
+    fetch("/admin/visitas/total")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("total-visitas").innerText = data.total;
+        });
+}
+
+cargarTotalVisitas();
+setInterval(cargarTotalVisitas, 3000);
+</script>
 
 </body>
 </html>
