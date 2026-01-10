@@ -53,6 +53,8 @@
                         {% else %}
                             ✅ ACTIVO
                         {% endif %}
+                        <h2>Total mensualidades: $<span id="total-mensualidades">0.00</span></h2>
+
                     </td>
                     <td>
                         <form method="POST"
@@ -65,6 +67,19 @@
                 {% endfor %}
             </tbody>
         </table>
+                        <script>
+                function cargarTotalMensualidades() {
+                    fetch("/admin/mensualidades/total")
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById("total-mensualidades").innerText = data.total;
+                        });
+                }
+
+                cargarTotalMensualidades();
+                setInterval(cargarTotalMensualidades, 3000);
+                </script>
+
     </div>
 
     <a href="/admin">⬅ Volver al panel</a>

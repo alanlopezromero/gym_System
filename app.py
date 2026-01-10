@@ -196,6 +196,18 @@ def eliminar_mensualidad(id):
 
     return redirect(url_for("mensualidades"))
 
+@app.route("/admin/mensualidades/total")
+def total_mensualidades():
+    if "admin_id" not in session:
+        return {"total": 0}
+
+    total = db.session.query(
+        db.func.sum(Mensualidad.monto)
+    ).scalar() or 0
+
+    return {"total": round(total, 2)}
+
+
 
 @app.route("/admin/visitas", methods=["GET", "POST"])
 def visitas():
@@ -302,6 +314,10 @@ def eliminar_producto(id):
     db.session.commit()
 
     return redirect(url_for("productos_view"))
+
+#---------------------------------------------
+
+
 
 
 
