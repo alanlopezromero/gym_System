@@ -289,6 +289,18 @@ def eliminar_bebida(id):
 
     return redirect(url_for("bebidas_view"))
 
+
+@app.route("/admin/bebidas/total")
+def total_bebidas():
+    if "admin_id" not in session:
+        return {"total": 0}
+
+    total = db.session.query(
+        db.func.sum(Bebida.monto)
+    ).scalar() or 0
+
+    return {"total": round(total, 2)}
+
 @app.route("/admin/productos", methods=["GET", "POST"])
 def productos_view():
     if "admin_id" not in session:

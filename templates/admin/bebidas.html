@@ -70,6 +70,26 @@
     <br>
     <a href="{{ url_for('admin_dashboard') }}">⬅ Volver al panel</a>
 </div>
+ <!-- TOTAL (UNA SOLA VEZ, ABAJO) -->
+    <div class="total-box">
+        <h2>Total Bebidas</h2>
+        <h1>$<span id="total-bebidas">0.00</span></h1>
+    </div>
+</div>
+
+<!-- JS TIEMPO REAL -->
+<script>
+function cargarTotalBebidas() {
+    fetch("/admin/bebidas/total")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("total-bebidas").innerText = data.total;
+        });
+}
+
+cargarTotalBebidas();
+setInterval(cargarTotalBebidas, 3000);
+</script>
 
 </body>
 </html>
