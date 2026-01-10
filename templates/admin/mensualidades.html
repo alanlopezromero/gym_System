@@ -18,7 +18,7 @@
         <button type="submit">Registrar</button>
     </form>
 
-    <!-- CONTENEDOR DE TABLA -->
+    <!-- TABLA -->
     <div class="table-wrapper">
         <table>
             <thead>
@@ -53,9 +53,8 @@
                         {% else %}
                             ✅ ACTIVO
                         {% endif %}
-                        <h2>Total mensualidades: $<span id="total-mensualidades">0.00</span></h2>
-
                     </td>
+
                     <td>
                         <form method="POST"
                               action="{{ url_for('eliminar_mensualidad', id=m.id) }}"
@@ -67,23 +66,30 @@
                 {% endfor %}
             </tbody>
         </table>
-                        <script>
-                function cargarTotalMensualidades() {
-                    fetch("/admin/mensualidades/total")
-                        .then(res => res.json())
-                        .then(data => {
-                            document.getElementById("total-mensualidades").innerText = data.total;
-                        });
-                }
+    </div>
 
-                cargarTotalMensualidades();
-                setInterval(cargarTotalMensualidades, 3000);
-                </script>
-
+    <!-- TOTAL (UNA SOLA VEZ) -->
+    <div class="total-box">
+        <h2>Total mensualidades</h2>
+        <h1>$<span id="total-mensualidades">0.00</span></h1>
     </div>
 
     <a href="/admin">⬅ Volver al panel</a>
 </div>
+
+<!-- JS TIEMPO REAL -->
+<script>
+function cargarTotalMensualidades() {
+    fetch("/admin/mensualidades/total")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("total-mensualidades").innerText = data.total;
+        });
+}
+
+cargarTotalMensualidades();
+setInterval(cargarTotalMensualidades, 3000);
+</script>
 
 </body>
 </html>
