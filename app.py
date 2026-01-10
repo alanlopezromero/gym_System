@@ -297,7 +297,7 @@ def eliminar_producto(id):
     if "admin_id" not in session:
         return redirect(url_for("login"))
 
-    producto = producto.query.get_or_404(id)
+    producto = Producto.query.get_or_404(id)
     db.session.delete(producto)
     db.session.commit()
 
