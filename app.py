@@ -33,13 +33,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
-class Usuario(db.Model):
-    __tablename__ = "usuarios"
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    contrasena = db.Column(db.String(200), nullable=False)
-
 class Bebida(db.Model):
     __tablename__ = "bebidas"
     id = db. Column(db.Integer,primary_key=True)
