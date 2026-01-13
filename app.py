@@ -4,7 +4,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from datetime import date, timedelta
 from flask import Flask, request, redirect, url_for, render_template
-from models import db, Cliente  # ajusta según tu modelo
 from generar_qr import generar_qr_cliente
  # tu función
 import os
