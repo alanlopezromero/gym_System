@@ -264,9 +264,9 @@ def mensualidades():
             cliente = Cliente(
                 nombre=nombre,
                 apellido=apellidos,
-                email=f"{nombre.lower()}.{apellidos.lower()}@example.com",
-                password_hash=generate_password_hash("temporal123")
+                email=f"{nombre.lower()}.{apellidos.lower()}@example.com"
             )
+            cliente.set_password("temporal123")  # ✅ Usar el método del modelo
             db.session.add(cliente)
             db.session.commit()  # Guardamos para obtener el id
 
