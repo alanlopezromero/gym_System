@@ -376,85 +376,73 @@ body {
     to { transform: translateX(0); opacity: 1; }
 }
 
-/* ========================
-   Admin Panel
-========================= */
-.admin-panel {
-    background: #ffffffee;
-    padding: 30px 40px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    width: 350px;
-    text-align: center;
-    animation: fadeIn 1s ease forwards;
-}
-
-.admin-header h1 {
-    font-size: 1.8rem;
-    color: #333;
-    margin-bottom: 5px;
-    animation: slideIn 0.5s ease forwards;
-}
-
-.admin-header p {
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 20px;
-    animation: slideIn 0.6s ease forwards;
-}
-
-/* ========================
-   Nav
-========================= */
-.admin-nav {
+/* Para que el dashboard tenga el mismo estilo que el index.html */
+body {
+    min-height: 100vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+        url("/static/img/gym_arcadias.jpg") no-repeat center center / cover;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 25px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #ffffff;
 }
 
-.admin-nav a {
-    display: block;
-    padding: 10px 15px;
-    background: #6c63ff;
-    color: white;
-    text-decoration: none;
-    border-radius: 12px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    transform: translateX(-10px);
-    opacity: 0;
-    animation: slideIn 0.5s forwards;
+.fondo-inicio {
+    min-height: 100vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
+        url("/static/img/gym_arcadias.jpg") no-repeat center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
 }
 
-.admin-nav a:nth-child(1) { animation-delay: 0.1s; }
-.admin-nav a:nth-child(2) { animation-delay: 0.2s; }
-.admin-nav a:nth-child(3) { animation-delay: 0.3s; }
-.admin-nav a:nth-child(4) { animation-delay: 0.4s; }
-
-.admin-nav a:hover {
-    background: #574fd6;
-    transform: translateX(5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+.container {
+    max-width: 600px;
+    width: 100%;
+    padding: 50px 40px;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 16px;
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
 }
 
-/* ========================
-Logout Button
-========================= */
-.logout-btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background: #ff6b6b;
-    color: white;
-    text-decoration: none;
-    border-radius: 12px;
+/* TITULO */
+.container h1 {
+    font-size: 2.8rem;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* TEXTO */
+.container p {
+    font-size: 1.3rem;
+    margin-bottom: 40px;
+    color: #dddddd;
+}
+
+/* BOTÓN */
+.container button {
+    padding: 15px 50px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 30px;
+    background: #e63946;
+    color: #fff;
+    cursor: pointer;
     font-weight: bold;
+    text-transform: uppercase;
     transition: all 0.3s ease;
 }
 
-.logout-btn:hover {
-    background: #ff4c4c;
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+/* HOVER */
+.container button:hover {
+    background: #ff4757;
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.9);
 }
 
