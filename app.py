@@ -87,21 +87,22 @@ def revisar_mensualidades():
                 f"Hola {m.cliente.nombre}, tu membresía vence hoy ({m.fecha_vencimiento.strftime('%d/%m/%Y')}). Por favor acude a renovación."
             )
 
-
 class Cliente(db.Model):
     __tablename__ = 'clientes'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    apellido = db.Column(db.String(100), nullable=False)  # <- AGREGAR
-    email = db.Column(db.String(120), unique=True, nullable=True)  # <-- nullable
-    password_hash = db.Column(db.String(256), nullable=True)  
+    apellido = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=True)      # <-- Cambiado a True
+    password_hash = db.Column(db.String(256), nullable=True)            # <-- Cambiado a True
 
-    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        if not self.password_hash:
+            return False
         return check_password_hash(self.password_hash, password)
+
 
 class Bebida(db.Model):
     __tablename__ = "bebidas"
