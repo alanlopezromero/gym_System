@@ -1,10 +1,14 @@
- * {
+/* ========================
+   Reset y base
+========================= */
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* ====== Fondo global con imagen ====== */
 body {
     min-height: 100vh;
     background:
@@ -15,51 +19,61 @@ body {
     align-items: center;
     text-align: center;
     color: #ffffff;
+    animation: fadeIn 1s ease-in;
 }
 
-.fondo-inicio {
-    min-height: 100vh;
-    background:
-        linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), /* más claro */
-        url("/static/img/gym_arcadias.jpg") no-repeat center/cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* ========================
+   Animaciones
+========================= */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* ========================
+   Contenedores principales
+========================= */
+.container, 
+.fondo-inicio, 
+.admin-container, 
+.cliente-container {
+    background: rgba(0, 0, 0, 0.55); /* mismo estilo para todos */
+    border-radius: 16px;
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
+    padding: 30px 40px;
+}
+
+/* ====== Títulos ====== */
+.container h1,
+.admin-container h1,
+.cliente-container h1 {
     text-align: center;
+    font-size: 2.8rem;
+    margin-bottom: 18px;
+    letter-spacing: 2px;
     color: #fff;
 }
 
-.container {
-    max-width: 600px;
-    width: 100%;
-    padding: 50px 40px;
-    background: rgba(0, 0, 0, 0.55);
-    border-radius: 16px;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
-}
-
-/* TITULO */
-.container h1 {
-    font-size: 2.8rem;
-    margin-bottom: 18px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-/* TEXTO */
+/* ====== Texto ====== */
 .container p {
     font-size: 1.3rem;
     margin-bottom: 40px;
     color: #dddddd;
 }
 
-/* BOTÓN */
-.container button {
+/* ====== Botones generales ====== */
+.container button,
+.form-card button {
     padding: 15px 50px;
     font-size: 1.2rem;
     border: none;
     border-radius: 30px;
-    background: #e63946;
+    background: linear-gradient(135deg, #ff9800, #ff5722);
     color: #fff;
     cursor: pointer;
     font-weight: bold;
@@ -67,15 +81,16 @@ body {
     transition: all 0.3s ease;
 }
 
-/* HOVER */
-.container button:hover {
-    background: #ff4757;
+.container button:hover,
+.form-card button:hover {
     transform: scale(1.08);
+    background: linear-gradient(135deg, #ff5722, #ff9800);
     box-shadow: 0 0 20px rgba(255, 71, 87, 0.9);
 }
-/*ESTILOS DE EL LOGIN*/
-/* INPUTS */
-.container input {
+
+/* ====== Inputs ====== */
+.container input,
+.form-card input {
     width: 100%;
     padding: 15px;
     margin-bottom: 20px;
@@ -86,7 +101,7 @@ body {
     text-align: center;
 }
 
-/* MENSAJE ERROR */
+/* ====== Mensajes de error ====== */
 .error {
     background: rgba(255, 0, 0, 0.2);
     padding: 12px;
@@ -96,7 +111,7 @@ body {
     font-weight: bold;
 }
 
-/* LINK VOLVER */
+/* ====== Link volver ====== */
 .back {
     display: block;
     margin-top: 20px;
@@ -109,10 +124,12 @@ body {
     color: #ffffff;
 }
 
+/* ====== Tablas ====== */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 30px;
+    font-size: 18px;
 }
 
 th, td {
@@ -134,33 +151,7 @@ th {
     color: white;
 }
 
-.form-card {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-/* ====== CONTENEDOR ADMIN ====== */
-.admin-container {
-    width: 95%;
-    max-width: 1600px;
-    margin: 30px auto;
-    padding: 35px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 18px;
-    box-shadow: 0 0 35px rgba(0,0,0,0.7);
-    color: #fff;
-}
-
-/* ====== TITULOS ====== */
-.admin-container h1 {
-    text-align: center;
-    font-size: 40px;
-    margin-bottom: 30px;
-    letter-spacing: 2px;
-}
-
-/* ====== FORMULARIOS ====== */
+/* ====== Form Card ====== */
 .form-card {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -168,222 +159,12 @@ th {
     margin-bottom: 35px;
 }
 
-.form-card input {
-    padding: 16px;
-    font-size: 17px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-}
-
-.form-card button {
-    grid-column: 1 / -1;
-    padding: 16px;
-    font-size: 20px;
-    background: linear-gradient(135deg, #ff9800, #ff5722);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.form-card button:hover {
-    transform: scale(1.04);
-    background: linear-gradient(135deg, #ff5722, #ff9800);
-}
-
-/* ====== TABLA CONTENEDOR ====== */
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
-/* ====== TABLAS ====== */
-table {
-    width: 100%;
-    min-width: 900px;
-    border-collapse: collapse;
-    margin-top: 25px;
-    font-size: 18px;
-}
-
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++
-/*estilos de el dasboar del cliente */
-.cliente-container {
-    max-width: 400px;
-    margin: 40px auto;
-    text-align: center;
-}
-
-.card {
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.activo {
-    background: #d4edda;
-    color: #155724;
-}
-
-.alerta {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.vencido {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.sin {
-    background: #e2e3e5;
-}
-
-.btn-salir {
-    display: inline-block;
-    padding: 10px 15px;
-    background: black;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-}
-
-/* ===== Contenedor principal ===== */
-.cliente-container {
-    max-width: 600px;
-    margin: 40px auto;
-    background: #fff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    font-family: 'Arial', sans-serif;
-    text-align: center;
-}
-
-/* ===== Título ===== */
-.cliente-container h1 {
-    margin-bottom: 25px;
-    color: #333;
-}
-
-/* ===== Tarjetas de estado ===== */
-.card {
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 25px;
-    color: #fff;
-    text-align: left;
-}
-
-/* Activo */
-.card.activo {
-    background: #4CAF50; /* verde */
-}
-
-/* Por vencer */
-.card.alerta {
-    background: #FFA500; /* naranja */
-}
-
-/* Vencido */
-.card.vencido {
-    background: #f44336; /* rojo */
-}
-
-/* Sin membresía */
-.card.sin {
-    background: #9e9e9e; /* gris */
-}
-
-/* ===== Texto dentro de la tarjeta ===== */
-.card h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 22px;
-}
-
-.card p {
-    margin: 5px 0;
-    font-size: 16px;
-}
-
-/* ===== QR ===== */
-.qr-img {
-    margin-top: 15px;
-    width: 200px;
-    height: 200px;
-}
-
-/* ===== Botón cerrar sesión ===== */
-.btn-salir {
-    display: inline-block;
-    margin-top: 15px;
-    padding: 10px 25px;
-    background: #f44336;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background 0.3s;
-}
-
-.btn-salir:hover {
-    background: #d32f2f;
-}
-
-/* ===== Responsivo ===== */
-@media (max-width: 650px) {
-    .cliente-container {
-        padding: 20px;
-        margin: 20px;
-    }
-    .qr-img {
-        width: 150px;
-        height: 150px;
-    }
-}
-
-/* ========================
-   Reset y base
-========================= */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn 1s ease-in;
-}
-
-/* ========================
-   Animaciones
-========================= */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-    from { transform: translateX(-50px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
-/* ========================
-   Admin Panel
-========================= */
+/* ====== Dashboard/Admin Panel ====== */
 .admin-panel {
-    background: #ffffffee;
+    background: rgba(0, 0, 0, 0.7);
     padding: 30px 40px;
     border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     width: 350px;
     text-align: center;
     animation: fadeIn 1s ease forwards;
@@ -391,21 +172,19 @@ body {
 
 .admin-header h1 {
     font-size: 1.8rem;
-    color: #333;
+    color: #fff;
     margin-bottom: 5px;
     animation: slideIn 0.5s ease forwards;
 }
 
 .admin-header p {
     font-size: 0.9rem;
-    color: #555;
+    color: #ddd;
     margin-bottom: 20px;
     animation: slideIn 0.6s ease forwards;
 }
 
-/* ========================
-   Nav
-========================= */
+/* ====== Nav panel ====== */
 .admin-nav {
     display: flex;
     flex-direction: column;
@@ -416,7 +195,7 @@ body {
 .admin-nav a {
     display: block;
     padding: 10px 15px;
-    background: #6c63ff;
+    background: #ff9800;
     color: white;
     text-decoration: none;
     border-radius: 12px;
@@ -433,18 +212,16 @@ body {
 .admin-nav a:nth-child(4) { animation-delay: 0.4s; }
 
 .admin-nav a:hover {
-    background: #574fd6;
+    background: #ff5722;
     transform: translateX(5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* ========================
-Logout Button
-========================= */
+/* ====== Logout Button ====== */
 .logout-btn {
     display: inline-block;
     padding: 10px 20px;
-    background: #ff6b6b;
+    background: #e63946;
     color: white;
     text-decoration: none;
     border-radius: 12px;
@@ -453,8 +230,62 @@ Logout Button
 }
 
 .logout-btn:hover {
-    background: #ff4c4c;
+    background: #d62828;
     transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
+/* ====== Cliente Dashboard Cards ====== */
+.cliente-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: rgba(0,0,0,0.7);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    color: #fff;
+    text-align: center;
+}
+
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    color: #fff;
+    text-align: left;
+}
+
+.card.activo { background: #4CAF50; }
+.card.alerta { background: #FFA500; }
+.card.vencido { background: #f44336; }
+.card.sin { background: #9e9e9e; }
+
+.card h2 { margin-top: 0; margin-bottom: 15px; font-size: 22px; }
+.card p { margin: 5px 0; font-size: 16px; }
+
+.qr-img { margin-top: 15px; width: 200px; height: 200px; }
+
+.btn-salir {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 25px;
+    background: #f44336;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.btn-salir:hover {
+    background: #d32f2f;
+}
+
+/* ====== Responsivo ====== */
+@media (max-width: 650px) {
+    .cliente-container, .admin-panel {
+        padding: 20px;
+        margin: 20px;
+        width: 95%;
+    }
+    .qr-img { width: 150px; height: 150px; }
+}
