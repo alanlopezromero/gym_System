@@ -198,45 +198,77 @@ def test_db():
         return f"Error: {e}"
     
 
-
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        cliente_id = request.form["cliente_id"]  # 👈 CLAVE
-        nombre = request.form["nombre"]
-        apellidos = request.form["apellidos"]
-        monto = request.form["monto"]
-        fecha_pago = datetime.strptime(
-            request.form["fecha_pago"], "%Y-%m-%d"
-        ).date()
+        # Obtenemos datos del formulario
+        cliente_id = request.form.get("cliente_id")  # puede ser vacío
+        nombre = request.form.get("nombre")
+        apellidos = request.form.get("apellidos")
+        monto = request.form.get("monto")
+        fecha_pago_str = request.form.get("fecha_pago")
 
+        # Validación básica
+        if not monto or not fecha_pago_str:
+            flash("❌ Monto y fecha son obligatorios")
+            return redirect(url_for("mensualidades"))
+
+        fecha_pago = datetime.strptime(fecha_pago_str, "%Y-%m-%d").date()
         fecha_vencimiento = fecha_pago + timedelta(days=30)
 
+        # Si seleccionó cliente del dropdown
+        if cliente_id:
+            cliente = Cliente.query.get(cliente_id)
+            if not cliente:
+                flash("❌ Cliente no encontrado")
+                return redirect(url_for("mensualidades"))
+            nombre_final = cliente.nombre
+            apellidos_final = cliente.apellido
+            cliente_id_final = cliente.id
+        else:
+            # Buscar cliente por nombre + apellidos manual
+            cliente = Cliente.query.filter_by(nombre=nombre, apellido=apellidos).first()
+            if not cliente:
+                flash("❌ Cliente no encontrado")
+                return redirect(url_for("mensualidades"))
+            nombre_final = nombre
+            apellidos_final = apellidos
+            cliente_id_final = cliente.id
+
+        # Crear mensualidad
         nueva = Mensualidad(
-            cliente_id=cliente_id,      # 👈 AGREGADO
-            nombre=nombre,
-            apellidos=apellidos,
-            monto=monto,
+            cliente_id=cliente_id_final,
+            nombre=nombre_final,
+            apellidos=apellidos_final,
+            monto=float(monto),
             fecha_pago=fecha_pago,
             fecha_vencimiento=fecha_vencimiento,
             estado="activo"
         )
-
         db.session.add(nueva)
         db.session.commit()
-        flash("✅ Mensualidad registrada correctamente")
 
+        # Generar QR automáticamente
+        generar_qr_cliente(cliente_id_final)
+
+        flash("✅ Mensualidad registrada correctamente")
+        return redirect(url_for("mensualidades"))  # ✅ RETURN dentro de la función
+
+    # Para GET mostramos los registros
     hoy = date.today()
     registros = Mensualidad.query.all()
+    clientes = Cliente.query.all()  # Para llenar el dropdown
 
     return render_template(
         "admin/mensualidades.html",
         registros=registros,
+        clientes=clientes,
         hoy=hoy
     )
+
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
 def eliminar_mensualidad(id):
