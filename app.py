@@ -136,12 +136,14 @@ class Mensualidad(db.Model):
     # 🔗 relación con cliente
     cliente_id = db.Column(
         db.Integer,
-        db.ForeignKey("clientes.id"),
+        db.ForeignKey("clientes.id", ondelete="CASCADE"),
         nullable=False
     )
 
+    # 🔹 Datos duplicados para historial (NO se rompen aunque el cliente cambie)
     nombre = db.Column(db.String(50), nullable=False)
     apellidos = db.Column(db.String(80), nullable=False)
+
     monto = db.Column(db.Float, nullable=False)
 
     fecha_pago = db.Column(db.Date, nullable=False)
@@ -150,11 +152,16 @@ class Mensualidad(db.Model):
     # 📌 estado automático
     estado = db.Column(
         db.String(20),
+        nullable=False,
         default="activo"
     )
 
-    # 👇 relación ORM (no afecta nada existente)
-    cliente = db.relationship("Cliente", backref="mensualidades")
+    # 👇 relación ORM
+    cliente = db.relationship(
+        "Cliente",
+        backref=db.backref("mensualidades", lazy=True)
+    )
+
 
 
 class Visita(db.Model):
