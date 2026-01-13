@@ -1,4 +1,4 @@
-* {
+ * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -193,27 +193,21 @@ th {
     background: linear-gradient(135deg, #ff5722, #ff9800);
 }
 
-
-/* ===== LOGOUT ===== */
-
-.admin-actions {
-    margin-top: 30px;
+/* ====== TABLA CONTENEDOR ====== */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
 }
 
-.logout-btn {
-    display: inline-block;
-    padding: 12px 30px;
-    border-radius: 30px;
-    background: #d62828;
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-    transition: 0.3s;
+/* ====== TABLAS ====== */
+table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    margin-top: 25px;
+    font-size: 18px;
 }
 
-.logout-btn:hover {
-    background: #a4161a;
-}
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++
 /*estilos de el dasboar del cliente */
 .cliente-container {
@@ -350,3 +344,13 @@ th {
     }
 }
 
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin:0; }
+.cliente-container { max-width: 500px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+h1 { text-align: center; }
+.card { padding: 15px; margin: 15px 0; border-radius: 8px; text-align: center; }
+.card.activo { background-color: #d4edda; }
+.card.alerta { background-color: #fff3cd; }
+.card.vencido { background-color: #f8d7da; }
+.card.sin { background-color: #e2e3e5; }
+.qr-img { width: 150px; height: 150px; margin: 10px auto; display: block; }
+.btn-salir { display: block; margin: 10px auto; padding: 10px 20px; background: #dc3545; color: #fff; border-radius: 5px; text-decoration: none; text-align: center; }
