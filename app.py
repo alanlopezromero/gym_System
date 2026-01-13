@@ -196,74 +196,63 @@ def test_db():
         return "Conexión a la base de datos exitosa ✅"
     except Exception as e:
         return f"Error: {e}"
-    
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
         return redirect(url_for("login"))
 
+    hoy = date.today()
+    registros = Mensualidad.query.all()
+
     if request.method == "POST":
-        # Obtenemos datos del formulario
-        cliente_id = request.form.get("cliente_id")
         nombre = request.form.get("nombre")
         apellidos = request.form.get("apellidos")
-        monto = request.form.get("monto")
-        fecha_pago_str = request.form.get("fecha_pago")
-
-        # Validación básica
-        if not monto or not fecha_pago_str:
-            flash("❌ Monto y fecha son obligatorios")
-            return redirect(url_for("mensualidades"))
-
-        fecha_pago = datetime.strptime(fecha_pago_str, "%Y-%m-%d").date()
+        monto = float(request.form.get("monto"))
+        fecha_pago = datetime.strptime(request.form.get("fecha_pago"), "%Y-%m-%d").date()
         fecha_vencimiento = fecha_pago + timedelta(days=30)
 
-        # Si seleccionó cliente del dropdown
-        if cliente_id:
-            cliente = Cliente.query.get(cliente_id)
-            if not cliente:
-                flash("❌ Cliente no encontrado")
-                return redirect(url_for("mensualidades"))
-            nombre_final = cliente.nombre
-            apellidos_final = cliente.apellido
-            cliente_id_final = cliente.id
-        else:
-            # Buscar cliente por nombre + apellidos manual
-            cliente = Cliente.query.filter_by(nombre=nombre, apellido=apellidos).first()
-            if not cliente:
-                flash("❌ Cliente no encontrado")
-                return redirect(url_for("mensualidades"))
-            nombre_final = nombre
-            apellidos_final = apellidos
-            cliente_id_final = cliente.id
+        # 🔹 Buscar cliente por nombre + apellido
+        cliente = Cliente.query.filter_by(nombre=nombre, apellido=apellidos).first()
 
-        # Crear mensualidad
+        if not cliente:
+            # Si no existe, lo creamos automáticamente
+            cliente = Cliente(
+                nombre=nombre,
+                apellido=apellidos,
+                email=f"{nombre.lower()}.{apellidos.lower()}@example.com",
+                password_hash=generate_password_hash("temporal123")
+            )
+            db.session.add(cliente)
+            db.session.commit()  # Guardamos para obtener el id
+
+        # 🔹 Crear mensualidad
         nueva = Mensualidad(
-            cliente_id=cliente_id_final,
-            nombre=nombre_final,
-            apellidos=apellidos_final,
-            monto=float(monto),
+            cliente_id=cliente.id,
+            nombre=nombre,
+            apellidos=apellidos,
+            monto=monto,
             fecha_pago=fecha_pago,
             fecha_vencimiento=fecha_vencimiento,
             estado="activo"
         )
+
         db.session.add(nueva)
-        db.session.commit()  # ✅ guarda la mensualidad
+        db.session.commit()  # Guardamos la mensualidad
 
         # 🔹 Generar QR automáticamente
-        generar_qr_cliente(cliente_id_final)
+        ruta_qr = f"static/qr/cliente_{cliente.id}.png"
+        if not os.path.exists(ruta_qr):
+            img = qrcode.make(f"CLIENTE:{cliente.id}")
+            img.save(ruta_qr)
 
         flash("✅ Mensualidad registrada correctamente")
-        return redirect(url_for("mensualidades"))
 
-    # GET
-    hoy = date.today()
-    registros = Mensualidad.query.all()
-    clientes = Cliente.query.all()
+        # 🔹 Recargar registros para mostrarlos inmediatamente
+        registros = Mensualidad.query.all()
+
     return render_template(
         "admin/mensualidades.html",
         registros=registros,
-        clientes=clientes,
         hoy=hoy
     )
 
