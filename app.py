@@ -93,9 +93,10 @@ class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     apellido = db.Column(db.String(100), nullable=False)  # <- AGREGAR
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=True)  # <-- nullable
+    password_hash = db.Column(db.String(256), nullable=True)  
 
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -240,7 +241,6 @@ def test_db():
         return "Conexión a la base de datos exitosa ✅"
     except Exception as e:
         return f"Error: {e}"
-    
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -260,8 +260,15 @@ def mensualidades():
         cliente = Cliente.query.filter_by(nombre=nombre, apellido=apellidos).first()
 
         if not cliente:
-            flash("❌ Este cliente no existe. Debe registrarse primero desde el QR.")
-            return redirect(url_for("mensualidades"))
+            # 🔹 Crear cliente temporal sin correo ni contraseña
+            cliente = Cliente(
+                nombre=nombre,
+                apellido=apellidos,
+                email=None,
+                password_hash=None
+            )
+            db.session.add(cliente)
+            db.session.commit()  # Necesitamos el ID para generar el QR
 
         # 🔹 Crear mensualidad
         nueva = Mensualidad(
@@ -285,13 +292,16 @@ def mensualidades():
         nombre_qr = f"cliente_{cliente.id}.png"
         ruta_qr = os.path.join(qr_dir, nombre_qr)
 
-        # 🔹 Generar QR siempre (actualiza si existe)
-        url_cliente = url_for("acceso_qr", cliente_id=cliente.id, _external=True)
-        img = qrcode.make(url_cliente)
-        img.save(ruta_qr)
+        # 🔹 Generar QR siempre que no exista
+        if not os.path.exists(ruta_qr):
+            url_cliente = url_for("acceso_qr", cliente_id=cliente.id, _external=True)
+            img = qrcode.make(url_cliente)
+            img.save(ruta_qr)
 
-        flash("✅ Mensualidad registrada correctamente y QR actualizado.")
-        registros = Mensualidad.query.all()  # Recargar registros
+        flash("✅ Cliente y mensualidad registrados correctamente. QR generado.")
+
+        # 🔹 Recargar registros para mostrarlos inmediatamente
+        registros = Mensualidad.query.all()
 
     # 🔹 Crear URLs de QR para el template
     qr_urls = {m.id: url_for("static", filename=f"qr/cliente_{m.cliente_id}.png") for m in registros}
@@ -302,7 +312,6 @@ def mensualidades():
         hoy=hoy,
         qr_urls=qr_urls
     )
-
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
 def eliminar_mensualidad(id):
@@ -459,12 +468,11 @@ def eliminar_producto(id):
 
     return redirect(url_for("productos_view"))
 
-#---------------------------------------------
 @app.route("/qr/<int:cliente_id>")
 def acceso_qr(cliente_id):
     """
-    Esta ruta se activa cuando el cliente escanea su QR.
-    Guarda el cliente_id en sesión temporal para pre-llenar el registro si es necesario.
+    El cliente escanea su QR y se guarda el ID temporalmente.
+    Lo manda a completar su registro si no tiene email ni contraseña.
     """
     session["qr_cliente_id"] = cliente_id
     return redirect(url_for("login_cliente"))
@@ -475,26 +483,41 @@ def login_cliente():
     qr_cliente_id = session.get("qr_cliente_id")  # Puede ser None
 
     if request.method == 'POST':
-        # --- LOGIN EXISTENTE ---
         email = request.form.get('email')
         password = request.form.get('password')
 
         cliente = Cliente.query.filter_by(email=email).first()
 
         if cliente:
+            # LOGIN
             if cliente.check_password(password):
                 session['cliente_id'] = cliente.id
-                if qr_cliente_id and qr_cliente_id != cliente.id:
-                    flash("❌ Este QR no corresponde a tu cuenta")
-                    return redirect(url_for("login_cliente"))
                 session.pop("qr_cliente_id", None)
                 return redirect(url_for("dashboard_cliente"))
             else:
                 flash("❌ Contraseña incorrecta")
         else:
-            flash("❌ No existe ninguna cuenta con ese correo. Regístrate.")
+            # REGISTRO DESDE QR
+            if not qr_cliente_id:
+                flash("❌ QR inválido")
+                return redirect(url_for("login_cliente"))
 
-    # --- FORMULARIO DE REGISTRO PRE-LLENADO ---
+            cliente_temp = Cliente.query.get(qr_cliente_id)
+            if not cliente_temp:
+                flash("❌ Cliente no encontrado")
+                return redirect(url_for("login_cliente"))
+
+            # Guardar email y contraseña
+            cliente_temp.email = email
+            cliente_temp.set_password(password)
+            db.session.commit()
+
+            session['cliente_id'] = cliente_temp.id
+            session.pop("qr_cliente_id", None)
+            flash("✅ Registro completado. Bienvenido!")
+            return redirect(url_for("dashboard_cliente"))
+
+    # Pre-llenado del formulario si viene de QR
     registro_prellenado = None
     if qr_cliente_id:
         cliente_temp = Cliente.query.get(qr_cliente_id)
@@ -509,6 +532,7 @@ def login_cliente():
         'login_cliente.html',
         registro_prellenado=registro_prellenado
     )
+
 
 @app.route('/registro-cliente', methods=['GET', 'POST'])
 def registro_cliente():
