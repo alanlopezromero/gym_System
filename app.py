@@ -91,13 +91,12 @@ def revisar_mensualidades():
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'
+
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     apellido = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=True)
     password_hash = db.Column(db.String(256), nullable=True)
-    
-    qr_base64 = db.Column(db.Text, nullable=True)  # <-- NUEVO CAMPO
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -474,53 +473,75 @@ def eliminar_producto(id):
 @app.route("/qr/<int:cliente_id>")
 def acceso_qr(cliente_id):
     """
-    El cliente escanea su QR y se guarda el ID temporalmente.
-    Lo manda a completar su registro si no tiene email ni contraseña.
+    El cliente escanea su QR.
+    Guarda el cliente_id temporalmente para completar registro o login.
     """
     session["qr_cliente_id"] = cliente_id
     return redirect(url_for("login_cliente"))
 
-
 @app.route('/login-cliente', methods=['GET', 'POST'])
 def login_cliente():
-    qr_cliente_id = session.get("qr_cliente_id")  # Puede ser None
+    qr_cliente_id = session.get("qr_cliente_id")
 
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
+        # 🔐 Validación básica
+        if not email or not password:
+            flash("❌ Debes completar todos los campos")
+            return redirect(url_for("login_cliente"))
+
         cliente = Cliente.query.filter_by(email=email).first()
 
+        # =========================
+        # LOGIN NORMAL
+        # =========================
         if cliente:
-            # LOGIN
+            if not cliente.password_hash:
+                flash("❌ Este usuario debe completar su registro desde el QR")
+                return redirect(url_for("login_cliente"))
+
             if cliente.check_password(password):
                 session['cliente_id'] = cliente.id
                 session.pop("qr_cliente_id", None)
                 return redirect(url_for("dashboard_cliente"))
             else:
                 flash("❌ Contraseña incorrecta")
-        else:
-            # REGISTRO DESDE QR
-            if not qr_cliente_id:
-                flash("❌ QR inválido")
                 return redirect(url_for("login_cliente"))
 
-            cliente_temp = Cliente.query.get(qr_cliente_id)
-            if not cliente_temp:
-                flash("❌ Cliente no encontrado")
-                return redirect(url_for("login_cliente"))
+        # =========================
+        # REGISTRO DESDE QR
+        # =========================
+        if not qr_cliente_id:
+            flash("❌ QR inválido o expirado")
+            return redirect(url_for("login_cliente"))
 
-            # Guardar email y contraseña
-            cliente_temp.email = email
-            cliente_temp.set_password(password)
-            db.session.commit()
+        cliente_temp = Cliente.query.get(qr_cliente_id)
+        if not cliente_temp:
+            flash("❌ Cliente no encontrado")
+            return redirect(url_for("login_cliente"))
 
-            session['cliente_id'] = cliente_temp.id
+        # Evitar que se vuelva a registrar
+        if cliente_temp.password_hash:
+            flash("⚠️ Este QR ya fue utilizado")
             session.pop("qr_cliente_id", None)
-            flash("✅ Registro completado. Bienvenido!")
-            return redirect(url_for("dashboard_cliente"))
+            return redirect(url_for("login_cliente"))
 
-    # Pre-llenado del formulario si viene de QR
+        # Guardar credenciales
+        cliente_temp.email = email
+        cliente_temp.set_password(password)
+        db.session.commit()
+
+        session['cliente_id'] = cliente_temp.id
+        session.pop("qr_cliente_id", None)
+
+        flash("✅ Registro completado correctamente")
+        return redirect(url_for("dashboard_cliente"))
+
+    # =========================
+    # GET → Prellenado
+    # =========================
     registro_prellenado = None
     if qr_cliente_id:
         cliente_temp = Cliente.query.get(qr_cliente_id)
@@ -528,13 +549,14 @@ def login_cliente():
             registro_prellenado = {
                 "nombre": cliente_temp.nombre,
                 "apellido": cliente_temp.apellido,
-                "email": ""  # Dejamos vacío para que ingrese su correo real
+                "email": ""
             }
 
     return render_template(
-        'login_cliente.html',
+        "login_cliente.html",
         registro_prellenado=registro_prellenado
     )
+
 
 
 @app.route('/registro-cliente', methods=['GET', 'POST'])

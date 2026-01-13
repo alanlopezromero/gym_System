@@ -10,7 +10,7 @@
 <div class="admin-container">
     <h1>Registrar Mensualidades</h1>
 
-    <!-- FORMULARIO SIMPLIFICADO -->
+    <!-- FORMULARIO -->
     <form method="POST" class="form-card" action="{{ url_for('mensualidades') }}">
         <input type="text" name="nombre" placeholder="Nombre" required>
         <input type="text" name="apellidos" placeholder="Apellidos" required>
@@ -19,7 +19,7 @@
         <button type="submit">Registrar</button>
     </form>
 
-    <!-- TABLA DE MENSUALIDADES -->
+    <!-- TABLA -->
     <div class="table-wrapper">
         <table>
             <thead>
@@ -41,7 +41,7 @@
                     {% endif %}
                 ">
                     <td>{{ m.nombre }} {{ m.apellidos }}</td>
-                    <td>${{ m.monto }}</td>
+                    <td>${{ "%.2f"|format(m.monto) }}</td>
                     <td>{{ m.fecha_pago.strftime('%d/%m/%Y') }}</td>
                     <td>{{ m.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
 
@@ -55,23 +55,21 @@
                         {% endif %}
                     </td>
 
-                    <!-- QR DEL CLIENTE EN BASE64 -->
+                    <!-- QR DINÁMICO (SIN BASE DE DATOS) -->
                     <td>
-                        {% if m.cliente.qr_base64 %}
-                            <img src="data:image/png;base64,{{ m.cliente.qr_base64 }}" width="80" alt="QR Cliente">
-                            <br>
-                            <a href="data:image/png;base64,{{ m.cliente.qr_base64 }}" download="cliente_{{ m.cliente.id }}.png">
-                                ⬇ Descargar QR
-                            </a>
-                        {% else %}
-                            ❌ No QR
-                        {% endif %}
+                        <img src="{{ url_for('qr_cliente', cliente_id=m.cliente_id) }}"
+                             width="80" alt="QR Cliente">
+                        <br>
+                        <a href="{{ url_for('qr_cliente', cliente_id=m.cliente_id) }}"
+                           download="cliente_{{ m.cliente_id }}.png">
+                            ⬇ Descargar QR
+                        </a>
                     </td>
 
                     <td>
                         <form method="POST"
-                            action="{{ url_for('eliminar_mensualidad', id=m.id) }}"
-                            onsubmit="return confirm('¿Eliminar esta mensualidad?');">
+                              action="{{ url_for('eliminar_mensualidad', id=m.id) }}"
+                              onsubmit="return confirm('¿Eliminar esta mensualidad?');">
                             <button type="submit" class="btn-eliminar">🗑 Eliminar</button>
                         </form>
                     </td>
@@ -90,7 +88,7 @@
     <a class="btn-volver" href="/admin">⬅ Volver al panel</a>
 </div>
 
-<!-- JS TIEMPO REAL -->
+<!-- JS TOTAL EN TIEMPO REAL -->
 <script>
 function cargarTotalMensualidades() {
     fetch("/admin/mensualidades/total")
