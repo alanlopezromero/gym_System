@@ -260,15 +260,8 @@ def mensualidades():
         cliente = Cliente.query.filter_by(nombre=nombre, apellido=apellidos).first()
 
         if not cliente:
-            # Si no existe, lo creamos automáticamente
-            cliente = Cliente(
-                nombre=nombre,
-                apellido=apellidos,
-                email=f"{nombre.lower()}.{apellidos.lower()}@example.com"
-            )
-            cliente.set_password("temporal123")  # ✅ Usar el método del modelo
-            db.session.add(cliente)
-            db.session.commit()  # Guardamos para obtener el id
+                flash("❌ Cliente no encontrado. Primero debe registrarse.")
+                return redirect(url_for("mensualidades"))
 
         # 🔹 Crear mensualidad
         nueva = Mensualidad(
@@ -522,44 +515,39 @@ def login_cliente():
         registro_prellenado=registro_prellenado
     )
 
-
-@app.route('/registro-cliente', methods=['POST'])
+@app.route('/registro-cliente', methods=['GET', 'POST'])
 def registro_cliente():
     """
-    Ruta para registrar un cliente nuevo desde QR.
+    Ruta para que un cliente se registre por sí mismo.
     """
-    qr_cliente_id = session.get("qr_cliente_id")
-    if not qr_cliente_id:
-        flash("❌ QR inválido")
-        return redirect(url_for("login_cliente"))
+    if request.method == "POST":
+        nombre = request.form.get("nombre")
+        apellido = request.form.get("apellido")
+        email = request.form.get("email")
+        password = request.form.get("password")
 
-    nombre = request.form.get("nombre")
-    apellido = request.form.get("apellido")
-    email = request.form.get("email")
-    password = request.form.get("password")
+        # Verificar si ya existe un cliente con ese email
+        if Cliente.query.filter_by(email=email).first():
+            flash("❌ Ya existe un cliente con ese correo. Intenta iniciar sesión.")
+            return redirect(url_for("registro_cliente"))
 
-    # Verificar si ya existe un cliente con ese email
-    if Cliente.query.filter_by(email=email).first():
-        flash("❌ Ya existe un cliente con ese correo. Intenta iniciar sesión.")
-        return redirect(url_for("login_cliente"))
+        # Guardar el cliente
+        nuevo_cliente = Cliente(
+            nombre=nombre,
+            apellido=apellido,
+            email=email
+        )
+        nuevo_cliente.set_password(password)
 
-    # Guardar el cliente
-    nuevo_cliente = Cliente(
-        id=qr_cliente_id,  # Mantener el ID del QR
-        nombre=nombre,
-        apellido=apellido,
-        email=email
-    )
-    nuevo_cliente.set_password(password)
+        db.session.add(nuevo_cliente)
+        db.session.commit()
 
-    db.session.add(nuevo_cliente)
-    db.session.commit()
+        session["cliente_id"] = nuevo_cliente.id
+        flash("✅ Registro exitoso. Bienvenido!")
 
-    session.pop("qr_cliente_id", None)
-    session["cliente_id"] = nuevo_cliente.id
-    flash("✅ Registro exitoso. Bienvenido!")
+        return redirect(url_for("dashboard_cliente"))
 
-    return redirect(url_for("dashboard_cliente"))
+    return render_template("registro_cliente.html")
 
 
 from functools import wraps
