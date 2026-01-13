@@ -492,7 +492,7 @@ header .header-links a:hover {
 header .logout-btn {
     display: inline-block;
     padding: 18px 40px;
-    background: #ff6b6b;
+    background: #ff4747;
     color: white;
     text-decoration: none;
     border-radius: 20px;
@@ -502,7 +502,49 @@ header .logout-btn {
 }
 
 header .logout-btn:hover {
-    background: #ff4c4c;
+    background: #e61313;
     transform: scale(1.08);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/*-----------------btn para el muensualidad de eliminar-------------------------------------*/
+
+.btn-eliminar{
+    display: inline-block;
+    padding: 18px 40px;
+    background: #ff4747;
+    color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+
+}
+
+.btn-eliminar:hover{
+    background: #e61313;
+    transform: scale(1.08);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+
+}
+
+.btn-volver{
+    display: inline-block;
+    padding: 18px 40px;
+    background: #ff4747;
+    color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.btn-volver:hover{
+        background: #e61313;
+    transform: scale(1.08);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+
+
 }
