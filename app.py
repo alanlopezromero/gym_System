@@ -197,7 +197,6 @@ def test_db():
     except Exception as e:
         return f"Error: {e}"
     
-
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -205,7 +204,7 @@ def mensualidades():
 
     if request.method == "POST":
         # Obtenemos datos del formulario
-        cliente_id = request.form.get("cliente_id")  # puede ser vacío
+        cliente_id = request.form.get("cliente_id")
         nombre = request.form.get("nombre")
         apellidos = request.form.get("apellidos")
         monto = request.form.get("monto")
@@ -249,25 +248,25 @@ def mensualidades():
             estado="activo"
         )
         db.session.add(nueva)
-        db.session.commit()
+        db.session.commit()  # ✅ guarda la mensualidad
 
-        # Generar QR automáticamente
+        # 🔹 Generar QR automáticamente
         generar_qr_cliente(cliente_id_final)
 
         flash("✅ Mensualidad registrada correctamente")
-        return redirect(url_for("mensualidades"))  # ✅ RETURN dentro de la función
+        return redirect(url_for("mensualidades"))
 
-    # Para GET mostramos los registros
+    # GET
     hoy = date.today()
     registros = Mensualidad.query.all()
-    clientes = Cliente.query.all()  # Para llenar el dropdown
-
+    clientes = Cliente.query.all()
     return render_template(
         "admin/mensualidades.html",
         registros=registros,
         clientes=clientes,
         hoy=hoy
     )
+
 
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
