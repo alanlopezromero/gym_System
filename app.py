@@ -646,6 +646,32 @@ def cron_revisar_mensualidades():
     revisar_mensualidades()
     return "✅ Mensualidades revisadas"
 
+@app.route("/registro-cliente", methods=["POST"])
+def registro_cliente():
+    # Solo POST
+    nombre = request.form.get("nombre")
+    apellido = request.form.get("apellido")
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    # Validar que no exista el correo
+    if Cliente.query.filter_by(email=email).first():
+        flash("❌ Ya existe un cliente con este correo")
+        return redirect(url_for("login_cliente"))
+
+    # Crear cliente
+    nuevo_cliente = Cliente(
+        nombre=nombre,
+        apellido=apellido,
+        email=email
+    )
+    nuevo_cliente.set_password(password)  # ✅ guarda hash
+    db.session.add(nuevo_cliente)
+    db.session.commit()
+
+    flash("✅ Registro exitoso, ya puedes iniciar sesión")
+    return redirect(url_for("login_cliente"))
+
 
 
 
