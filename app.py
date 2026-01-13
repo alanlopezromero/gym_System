@@ -182,7 +182,7 @@ with app.app_context():
     if not admin:
         admin = Admin(
             usuario="adminJuan",
-            password=generate_password_hash("system50")
+            password=generate_password_hash("system58")
         )
         db.session.add(admin)
         db.session.commit()
