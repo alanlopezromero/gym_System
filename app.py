@@ -9,6 +9,10 @@ import os
 import qrcode
 
 
+
+
+
+
 # -----------------------------
 # CONFIGURACIÓN
 # -----------------------------
@@ -35,6 +39,53 @@ app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
+from flask_mail import Mail, Message
+
+# Configuración de correo (usa tu SMTP real)
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')  # tu correo
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # contraseña de app
+
+mail = Mail(app)
+
+def enviar_correo_alerta(cliente_email, asunto, mensaje):
+    try:
+        msg = Message(
+            subject=asunto,
+            recipients=[cliente_email],
+            body=mensaje,
+            sender=app.config['MAIL_USERNAME']
+        )
+        mail.send(msg)
+        print(f"✅ Correo enviado a {cliente_email}")
+    except Exception as e:
+        print(f"❌ Error al enviar correo a {cliente_email}: {e}")
+
+def revisar_mensualidades():
+    hoy = date.today()
+    mensualidades = Mensualidad.query.all()
+
+    for m in mensualidades:
+        dias_restantes = (m.fecha_vencimiento - hoy).days
+
+        if dias_restantes == 2:
+            # ⚠️ 2 días antes
+            enviar_correo_alerta(
+                m.cliente.email,
+                "⚠️ Tu membresía está por vencer",
+                f"Hola {m.cliente.nombre}, tu membresía vence el {m.fecha_vencimiento.strftime('%d/%m/%Y')}. ¡Renueva a tiempo!"
+            )
+        elif dias_restantes == 0:
+            # ❌ Día de vencimiento
+            enviar_correo_alerta(
+                m.cliente.email,
+                "❌ Tu membresía vence hoy",
+                f"Hola {m.cliente.nombre}, tu membresía vence hoy ({m.fecha_vencimiento.strftime('%d/%m/%Y')}). Por favor acude a renovación."
+            )
+
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'
@@ -450,12 +501,12 @@ def login_cliente_required(f):
 
 from datetime import date, timedelta
 
-
 @app.route('/dashboard')
 @login_cliente_required
 def dashboard_cliente():
     cliente_id = session['cliente_id']
 
+    # Obtenemos la última mensualidad del cliente
     mensualidad = Mensualidad.query.filter_by(
         cliente_id=cliente_id
     ).order_by(Mensualidad.fecha_vencimiento.desc()).first()
@@ -464,18 +515,26 @@ def dashboard_cliente():
 
     if not mensualidad:
         estado = "sin_membresia"
+        qr_url = None
     else:
-        estado = "activo"
+        # Calculamos el estado
         if hoy > mensualidad.fecha_vencimiento:
             estado = "vencido"
         elif hoy >= mensualidad.fecha_vencimiento - timedelta(days=2):
             estado = "por_vencer"
+        else:
+            estado = "activo"
+
+        # Generar QR si no existe y si no está vencido
+        qr_url = generar_qr_cliente(cliente_id) if estado != "vencido" else None
 
     return render_template(
         "dashboard_cliente.html",
         mensualidad=mensualidad,
-        estado=estado
+        estado=estado,
+        qr_url=qr_url
     )
+
 
 @app.route("/admin/mensualidad/crear/<int:cliente_id>", methods=["POST"])
 def crear_mensualidad(cliente_id):
@@ -508,6 +567,16 @@ def acceso_qr(cliente_id):
     # Guardamos el cliente en sesión temporal
     session["qr_cliente_id"] = cliente_id
     return redirect(url_for("login_cliente"))
+
+@app.route("/cron/revisar-mensualidades")
+def cron_revisar_mensualidades():
+    token = request.args.get("token")
+    if token != os.environ.get("CRON_TOKEN"):
+        return "❌ No autorizado", 401
+
+    revisar_mensualidades()
+    return "✅ Mensualidades revisadas"
+
 
 
 

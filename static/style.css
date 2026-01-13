@@ -397,3 +397,108 @@ tbody td {
     border-radius: 6px;
 }
 
+/* ===== Contenedor principal ===== */
+.cliente-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+}
+
+/* ===== Título ===== */
+.cliente-container h1 {
+    margin-bottom: 25px;
+    color: #333;
+}
+
+/* ===== Tarjetas de estado ===== */
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    color: #fff;
+    text-align: left;
+}
+
+/* Activo */
+.card.activo {
+    background: #4CAF50; /* verde */
+}
+
+/* Por vencer */
+.card.alerta {
+    background: #FFA500; /* naranja */
+}
+
+/* Vencido */
+.card.vencido {
+    background: #f44336; /* rojo */
+}
+
+/* Sin membresía */
+.card.sin {
+    background: #9e9e9e; /* gris */
+}
+
+/* ===== Texto dentro de la tarjeta ===== */
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+
+.card p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* ===== QR ===== */
+.qr-img {
+    margin-top: 15px;
+    width: 200px;
+    height: 200px;
+}
+
+/* ===== Botón cerrar sesión ===== */
+.btn-salir {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 25px;
+    background: #f44336;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.btn-salir:hover {
+    background: #d32f2f;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 650px) {
+    .cliente-container {
+        padding: 20px;
+        margin: 20px;
+    }
+    .qr-img {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin:0; }
+.cliente-container { max-width: 500px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+h1 { text-align: center; }
+.card { padding: 15px; margin: 15px 0; border-radius: 8px; text-align: center; }
+.card.activo { background-color: #d4edda; }
+.card.alerta { background-color: #fff3cd; }
+.card.vencido { background-color: #f8d7da; }
+.card.sin { background-color: #e2e3e5; }
+.qr-img { width: 150px; height: 150px; margin: 10px auto; display: block; }
+.btn-salir { display: block; margin: 10px auto; padding: 10px 20px; background: #dc3545; color: #fff; border-radius: 5px; text-decoration: none; text-align: center; }
+
