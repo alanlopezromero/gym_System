@@ -8,6 +8,8 @@ from generar_qr import generar_qr_cliente
 from flask import url_for
 import os
 import qrcode
+import io
+import base64
 
 
 
@@ -92,15 +94,15 @@ class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     apellido = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=True)      # <-- Cambiado a True
-    password_hash = db.Column(db.String(256), nullable=True)            # <-- Cambiado a True
+    email = db.Column(db.String(120), unique=True, nullable=True)
+    password_hash = db.Column(db.String(256), nullable=True)
+    
+    qr_base64 = db.Column(db.Text, nullable=True)  # <-- NUEVO CAMPO
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        if not self.password_hash:
-            return False
         return check_password_hash(self.password_hash, password)
 
 
@@ -242,6 +244,9 @@ def test_db():
         return "Conexión a la base de datos exitosa ✅"
     except Exception as e:
         return f"Error: {e}"
+
+
+
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -284,35 +289,25 @@ def mensualidades():
         db.session.add(nueva)
         db.session.commit()
 
-        # 🔹 Carpeta QR
-        qr_dir = os.path.join(app.static_folder, "qr")
-        if not os.path.exists(qr_dir):
-            os.makedirs(qr_dir)
-
-        # 🔹 Ruta completa del QR
-        nombre_qr = f"cliente_{cliente.id}.png"
-        ruta_qr = os.path.join(qr_dir, nombre_qr)
-
-        # 🔹 Generar QR siempre que no exista
-        if not os.path.exists(ruta_qr):
-            url_cliente = url_for("acceso_qr", cliente_id=cliente.id, _external=True)
-            img = qrcode.make(url_cliente)
-            img.save(ruta_qr)
+        # 🔹 Generar QR en memoria y guardar como base64
+        url_cliente = url_for("acceso_qr", cliente_id=cliente.id, _external=True)
+        img = qrcode.make(url_cliente)
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        cliente.qr_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+        db.session.commit()
 
         flash("✅ Cliente y mensualidad registrados correctamente. QR generado.")
 
         # 🔹 Recargar registros para mostrarlos inmediatamente
         registros = Mensualidad.query.all()
 
-    # 🔹 Crear URLs de QR para el template
-    qr_urls = {m.id: url_for("static", filename=f"qr/cliente_{m.cliente_id}.png") for m in registros}
-
     return render_template(
         "admin/mensualidades.html",
         registros=registros,
-        hoy=hoy,
-        qr_urls=qr_urls
+        hoy=hoy
     )
+
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
 def eliminar_mensualidad(id):

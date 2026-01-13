@@ -55,15 +55,17 @@
                         {% endif %}
                     </td>
 
-                    <!-- QR DEL CLIENTE -->
+                    <!-- QR DEL CLIENTE EN BASE64 -->
                     <td>
-                        <img src="{{ url_for('static', filename='qr/cliente_' ~ m.cliente_id ~ '.png') }}"
-                            width="80" alt="QR Cliente">
-                        <br>
-                        <a href="{{ url_for('static', filename='qr/cliente_' ~ m.cliente_id ~ '.png') }}"
-                        download="cliente_{{ m.cliente_id }}.png">
-                            ⬇ Descargar QR
-                        </a>
+                        {% if m.cliente.qr_base64 %}
+                            <img src="data:image/png;base64,{{ m.cliente.qr_base64 }}" width="80" alt="QR Cliente">
+                            <br>
+                            <a href="data:image/png;base64,{{ m.cliente.qr_base64 }}" download="cliente_{{ m.cliente.id }}.png">
+                                ⬇ Descargar QR
+                            </a>
+                        {% else %}
+                            ❌ No QR
+                        {% endif %}
                     </td>
 
                     <td>
