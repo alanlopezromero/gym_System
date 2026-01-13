@@ -58,18 +58,18 @@
                     <!-- QR DEL CLIENTE -->
                     <td>
                         <img src="{{ url_for('static', filename='qr/cliente_' ~ m.cliente_id ~ '.png') }}"
-                             width="80" alt="QR Cliente">
+                            width="80" alt="QR Cliente">
                         <br>
                         <a href="{{ url_for('static', filename='qr/cliente_' ~ m.cliente_id ~ '.png') }}"
-                           download="cliente_{{ m.cliente_id }}.png">
+                        download="cliente_{{ m.cliente_id }}.png">
                             ⬇ Descargar QR
                         </a>
                     </td>
 
                     <td>
                         <form method="POST"
-                              action="{{ url_for('eliminar_mensualidad', id=m.id) }}"
-                              onsubmit="return confirm('¿Eliminar esta mensualidad?');">
+                            action="{{ url_for('eliminar_mensualidad', id=m.id) }}"
+                            onsubmit="return confirm('¿Eliminar esta mensualidad?');">
                             <button type="submit" class="btn-eliminar">🗑 Eliminar</button>
                         </form>
                     </td>
@@ -85,7 +85,7 @@
         <h1>$<span id="total-mensualidades">0.00</span></h1>
     </div>
 
-    <a href="/admin"class="btn-voler">⬅ Volver al panel</a>
+    <a class="btn-voler" href="/admin">⬅ Volver al panel</a>
 </div>
 
 <!-- JS TIEMPO REAL -->
