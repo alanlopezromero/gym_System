@@ -4,17 +4,29 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from datetime import date, timedelta
 import os
+import qrcode
+
+
+
+def generar_qr_cliente(cliente_id):
+    ruta_qr = f"static/qr/cliente_{cliente_id}.png"
+
+    if not os.path.exists(ruta_qr):
+        img = qrcode.make(f"CLIENTE:{cliente_id}")
+        img.save(ruta_qr)
+
+    return ruta_qr
 
 # -----------------------------
 # CONFIGURACIÓN
 # -----------------------------
 
 # -----------------------------
-# MODELOS
+# MODELOs
 # -----------------------------
 
 app = Flask(__name__)
-app.secret_key = "clave_super_secreta"
+
 
 
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
@@ -32,6 +44,19 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
+class Cliente(db.Model):
+    __tablename__ = 'clientes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class Bebida(db.Model):
     __tablename__ = "bebidas"
@@ -57,12 +82,32 @@ class Admin(db.Model):
 
 class Mensualidad(db.Model):
     __tablename__ = "mensualidades"
+
     id = db.Column(db.Integer, primary_key=True)
+
+    # 🔗 relación con cliente
+    cliente_id = db.Column(
+        db.Integer,
+        db.ForeignKey("clientes.id"),
+        nullable=False
+    )
+
     nombre = db.Column(db.String(50), nullable=False)
     apellidos = db.Column(db.String(80), nullable=False)
     monto = db.Column(db.Float, nullable=False)
+
     fecha_pago = db.Column(db.Date, nullable=False)
     fecha_vencimiento = db.Column(db.Date, nullable=False)
+
+    # 📌 estado automático
+    estado = db.Column(
+        db.String(20),
+        default="activo"
+    )
+
+    # 👇 relación ORM (no afecta nada existente)
+    cliente = db.relationship("Cliente", backref="mensualidades")
+
 
 class Visita(db.Model):
     __tablename__ = "visitas"
@@ -73,8 +118,15 @@ class Visita(db.Model):
 
 
 
-with app.app_context():
-    db.create_all()
+def calcular_estado_mensualidad(mensualidad):
+    hoy = date.today()
+
+    if hoy > mensualidad.fecha_vencimiento:
+        return "vencido"
+    elif hoy >= mensualidad.fecha_vencimiento - timedelta(days=2):
+        return "por_vencer"
+    else:
+        return "activo"
 
 
 from werkzeug.security import generate_password_hash
@@ -153,22 +205,29 @@ def mensualidades():
         return redirect(url_for("login"))
 
     if request.method == "POST":
+        cliente_id = request.form["cliente_id"]  # 👈 CLAVE
         nombre = request.form["nombre"]
         apellidos = request.form["apellidos"]
         monto = request.form["monto"]
-        fecha_pago = datetime.strptime(request.form["fecha_pago"], "%Y-%m-%d").date()
+        fecha_pago = datetime.strptime(
+            request.form["fecha_pago"], "%Y-%m-%d"
+        ).date()
 
         fecha_vencimiento = fecha_pago + timedelta(days=30)
 
         nueva = Mensualidad(
+            cliente_id=cliente_id,      # 👈 AGREGADO
             nombre=nombre,
             apellidos=apellidos,
             monto=monto,
             fecha_pago=fecha_pago,
-            fecha_vencimiento=fecha_vencimiento
+            fecha_vencimiento=fecha_vencimiento,
+            estado="activo"
         )
+
         db.session.add(nueva)
         db.session.commit()
+        flash("✅ Mensualidad registrada correctamente")
 
     hoy = date.today()
     registros = Mensualidad.query.all()
@@ -178,6 +237,7 @@ def mensualidades():
         registros=registros,
         hoy=hoy
     )
+
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
 def eliminar_mensualidad(id):
     if "admin_id" not in session:
@@ -335,6 +395,101 @@ def eliminar_producto(id):
 
 #---------------------------------------------
 
+@app.route('/login-cliente', methods=['GET', 'POST'])
+def login_cliente():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        cliente = Cliente.query.filter_by(email=email).first()
+
+        if cliente and cliente.check_password(password):
+            session['cliente_id'] = cliente.id
+
+            # 🔐 VALIDACIÓN DE QR (SI VIENE DE UNO)
+            if "qr_cliente_id" in session:
+                if session["qr_cliente_id"] != cliente.id:
+                    flash("❌ Este QR no corresponde a tu cuenta")
+                    return redirect(url_for("login_cliente"))
+                session.pop("qr_cliente_id")  # limpia el QR
+
+            return redirect(url_for('dashboard_cliente'))
+        else:
+            flash('Credenciales incorrectas')
+
+    return render_template('login_cliente.html')
+
+from functools import wraps
+
+def login_cliente_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if 'cliente_id' not in session:
+            return redirect(url_for('login_cliente'))
+        return f(*args, **kwargs)
+    return wrapper
+
+
+from datetime import date, timedelta
+
+
+@app.route('/dashboard')
+@login_cliente_required
+def dashboard_cliente():
+    cliente_id = session['cliente_id']
+
+    mensualidad = Mensualidad.query.filter_by(
+        cliente_id=cliente_id
+    ).order_by(Mensualidad.fecha_vencimiento.desc()).first()
+
+    hoy = date.today()
+
+    if not mensualidad:
+        estado = "sin_membresia"
+    else:
+        estado = "activo"
+        if hoy > mensualidad.fecha_vencimiento:
+            estado = "vencido"
+        elif hoy >= mensualidad.fecha_vencimiento - timedelta(days=2):
+            estado = "por_vencer"
+
+    return render_template(
+        "dashboard_cliente.html",
+        mensualidad=mensualidad,
+        estado=estado
+    )
+
+@app.route("/admin/mensualidad/crear/<int:cliente_id>", methods=["POST"])
+def crear_mensualidad(cliente_id):
+    if "admin_id" not in session:
+        return redirect(url_for("login"))
+
+    fecha_pago = date.today()
+    fecha_vencimiento = fecha_pago + timedelta(days=30)
+
+    nueva = Mensualidad(
+        cliente_id=cliente_id,
+        nombre=request.form["nombre"],
+        apellidos=request.form["apellidos"],
+        monto=request.form["monto"],
+        fecha_pago=fecha_pago,
+        fecha_vencimiento=fecha_vencimiento,
+        estado="activo"
+    )
+
+    db.session.add(nueva)
+    db.session.commit()
+    generar_qr_cliente(cliente_id)
+
+
+    flash("✅ Mensualidad creada correctamente")
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/qr/<int:cliente_id>")
+def acceso_qr(cliente_id):
+    # Guardamos el cliente en sesión temporal
+    session["qr_cliente_id"] = cliente_id
+    return redirect(url_for("login_cliente"))
 
 
 

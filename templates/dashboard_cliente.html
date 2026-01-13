@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Membresía</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="cliente-container">
+
+    <h1>🏋️ Estado de tu membresía</h1>
+
+    {% if estado == "sin_membresia" %}
+        <div class="card sin">
+            <h2>⚪ Sin membresía activa</h2>
+            <p>Consulta con administración.</p>
+        </div>
+
+    {% else %}
+        <div class="card 
+            {% if estado == 'activo' %}activo{% endif %}
+            {% if estado == 'por_vencer' %}alerta{% endif %}
+            {% if estado == 'vencido' %}vencido{% endif %}
+        ">
+            <h2>
+                {% if estado == "activo" %}✅ Membresía activa{% endif %}
+                {% if estado == "por_vencer" %}⚠️ Por vencer{% endif %}
+                {% if estado == "vencido" %}❌ Membresía vencida{% endif %}
+            </h2>
+
+            <p><strong>Nombre:</strong> {{ mensualidad.nombre }} {{ mensualidad.apellidos }}</p>
+            <p><strong>Fecha de pago:</strong> {{ mensualidad.fecha_pago.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Fecha de vencimiento:</strong> {{ mensualidad.fecha_vencimiento.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Monto:</strong> ${{ mensualidad.monto }}</p>
+
+            {% if estado != "vencido" %}
+                <hr>
+                <h3>📱 Código QR de acceso</h3>
+                <img src="{{ qr_url }}" alt="QR Cliente" class="qr-img">
+                <p>Presenta este código en recepción</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <a href="{{ url_for('logout') }}" class="btn-salir">Cerrar sesión</a>
+
+</div>
+
+</body>
+</html>

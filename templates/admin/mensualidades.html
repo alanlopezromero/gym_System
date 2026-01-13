@@ -11,6 +11,17 @@
     <h1>Registrar Mensualidades</h1>
 
     <form method="POST" class="form-card">
+
+        <!-- 👇 SELECT DE CLIENTES (YA ESTABA BIEN) -->
+        <select name="cliente_id" required>
+            <option value="">Selecciona un cliente</option>
+            {% for c in clientes %}
+                <option value="{{ c.id }}">
+                    {{ c.nombre }} – {{ c.email }}
+                </option>
+            {% endfor %}
+        </select>
+
         <input type="text" name="nombre" placeholder="Nombre" required>
         <input type="text" name="apellidos" placeholder="Apellidos" required>
         <input type="number" step="0.01" name="monto" placeholder="Monto $" required>
@@ -28,6 +39,7 @@
                     <th>Fecha de Pago</th>
                     <th>Fecha de Vencimiento</th>
                     <th>Estado</th>
+                    <th>QR</th> <!-- 👈 NUEVO -->
                     <th>Acción</th>
                 </tr>
             </thead>
@@ -55,6 +67,14 @@
                         {% endif %}
                     </td>
 
+                    <!-- 👇 QR DEL CLIENTE -->
+                    <td>
+                        <img
+                            src="{{ url_for('static', filename='qr/cliente_' ~ m.cliente_id ~ '.png') }}"
+                            width="80"
+                            alt="QR Cliente">
+                    </td>
+
                     <td>
                         <form method="POST"
                               action="{{ url_for('eliminar_mensualidad', id=m.id) }}"
@@ -68,7 +88,7 @@
         </table>
     </div>
 
-    <!-- TOTAL (UNA SOLA VEZ) -->
+    <!-- TOTAL -->
     <div class="total-box">
         <h2>Total mensualidades</h2>
         <h1>$<span id="total-mensualidades">0.00</span></h1>

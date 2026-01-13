@@ -355,3 +355,45 @@ tbody td {
 .logout-btn:hover {
     background: #a4161a;
 }
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++
+/*estilos de el dasboar del cliente */
+.cliente-container {
+    max-width: 400px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.activo {
+    background: #d4edda;
+    color: #155724;
+}
+
+.alerta {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.vencido {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.sin {
+    background: #e2e3e5;
+}
+
+.btn-salir {
+    display: inline-block;
+    padding: 10px 15px;
+    background: black;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
