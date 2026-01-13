@@ -42,8 +42,8 @@
                 <td>${{ "%.2f"|format(v.monto) }}</td>
                 <td>
                     <form method="POST"
-                          action="{{ url_for('eliminar_bebida', id=v.id) }}"
-                          onsubmit="return confirm('¿Eliminar este registro?');">
+                        action="{{ url_for('eliminar_bebida', id=v.id) }}"
+                        onsubmit="return confirm('¿Eliminar este registro?');">
                         <button type="submit" class="btn-eliminar">🗑 Eliminar</button>
                     </form>
                 </td>
@@ -58,7 +58,7 @@
         <h1>$<span id="total-bebidas">0.00</span></h1>
     </div>
 
-    <a class="btn-voler" href="{{ url_for('admin_dashboard') }}">⬅ Volver al panel</a>
+    <a class="btn-volver" href="{{ url_for('admin_dashboard') }}">⬅ Volver al panel</a>
 </div>
 
 <!-- JS -->
