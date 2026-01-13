@@ -240,6 +240,7 @@ def test_db():
         return "Conexión a la base de datos exitosa ✅"
     except Exception as e:
         return f"Error: {e}"
+    
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -283,17 +284,17 @@ def mensualidades():
         db.session.add(nueva)
         db.session.commit()  # Guardamos la mensualidad
 
-        # 🔹 Asegurarnos que la carpeta QR exista
-        qr_dir = "static/qr"
+        # 🔹 Carpeta QR
+        qr_dir = os.path.join(app.static_folder, "qr")
         if not os.path.exists(qr_dir):
             os.makedirs(qr_dir)
 
-        # 🔹 Generar ruta del QR
-        ruta_qr = os.path.join(qr_dir, f"cliente_{cliente.id}.png")
+        # 🔹 Ruta completa del QR
+        nombre_qr = f"cliente_{cliente.id}.png"
+        ruta_qr = os.path.join(qr_dir, nombre_qr)
 
-        # 🔹 Generar QR automáticamente con la URL de acceso
+        # 🔹 Generar QR siempre que no exista
         if not os.path.exists(ruta_qr):
-            # url_for con _external=True para generar URL completa
             url_cliente = url_for("acceso_qr", cliente_id=cliente.id, _external=True)
             img = qrcode.make(url_cliente)
             img.save(ruta_qr)
@@ -303,12 +304,15 @@ def mensualidades():
         # 🔹 Recargar registros para mostrarlos inmediatamente
         registros = Mensualidad.query.all()
 
+    # 🔹 Crear URLs de QR para el template (opcional si quieres mostrarlos allí)
+    qr_urls = {m.id: url_for("static", filename=f"qr/cliente_{m.cliente_id}.png") for m in registros}
+
     return render_template(
         "admin/mensualidades.html",
         registros=registros,
-        hoy=hoy
+        hoy=hoy,
+        qr_urls=qr_urls
     )
-
 
 
 
