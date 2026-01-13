@@ -10,18 +10,16 @@
     <header class="container">
         <h1>Bienvenido, Admin 👋</h1>
         <p>Panel de administración · YGM Arcadia's</p>
-    </header>
 
-    <nav class="admin-nav">
-        <a href="{{url_for('productos_view')}}">💪productos personales</a>
-        <a href="{{ url_for('bebidas_view') }}">🫗Bebidas y Scups</a>
-        <a href="{{ url_for('mensualidades') }}">📆 Mensualidades</a>
-        <a href="{{ url_for('visitas') }}">🚶 Visitas</a>
-    </nav>
+        <div class="header-links">
+            <a href="{{ url_for('productos_view') }}">💪 Productos personales</a>
+            <a href="{{ url_for('bebidas_view') }}">🫗 Bebidas y Scups</a>
+            <a href="{{ url_for('mensualidades') }}">📆 Mensualidades</a>
+            <a href="{{ url_for('visitas') }}">🚶 Visitas</a>
+        </div>
 
-    <div class="admin-actions">
         <a href="/logout" class="logout-btn">Cerrar sesión</a>
-    </div>
+    </header>
 
 </div>
 {% endblock %}
