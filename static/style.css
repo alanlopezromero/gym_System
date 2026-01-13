@@ -1,6 +1,3 @@
-/* ======================= */
-/* RESET Y FUENTES         */
-/* ======================= */
 * {
     margin: 0;
     padding: 0;
@@ -8,14 +5,11 @@
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ======================= */
-/* BODY Y FONDO            */
-/* ======================= */
 body {
     min-height: 100vh;
     background:
         linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-        url("img/gym_arcadias.jpg") no-repeat center center / cover;
+        url("/static/img/gym_arcadias.jpg") no-repeat center center / cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -23,14 +17,11 @@ body {
     color: #ffffff;
 }
 
-/* ======================= */
-/* FONDO INICIO LOGIN      */
-/* ======================= */
 .fondo-inicio {
     min-height: 100vh;
     background:
-        linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
-        url("img/gym_arcadias.jpg") no-repeat center / cover;
+        linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), /* más claro */
+        url("/static/img/gym_arcadias.jpg") no-repeat center/cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -38,9 +29,6 @@ body {
     color: #fff;
 }
 
-/* ======================= */
-/* CONTENEDOR PRINCIPAL    */
-/* ======================= */
 .container {
     max-width: 600px;
     width: 100%;
@@ -48,9 +36,9 @@ body {
     background: rgba(0, 0, 0, 0.55);
     border-radius: 16px;
     box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
-    color: #fff;
 }
 
+/* TITULO */
 .container h1 {
     font-size: 2.8rem;
     margin-bottom: 18px;
@@ -58,12 +46,14 @@ body {
     letter-spacing: 2px;
 }
 
+/* TEXTO */
 .container p {
     font-size: 1.3rem;
     margin-bottom: 40px;
     color: #dddddd;
 }
 
+/* BOTÓN */
 .container button {
     padding: 15px 50px;
     font-size: 1.2rem;
@@ -77,12 +67,14 @@ body {
     transition: all 0.3s ease;
 }
 
+/* HOVER */
 .container button:hover {
     background: #ff4757;
     transform: scale(1.08);
     box-shadow: 0 0 20px rgba(255, 71, 87, 0.9);
 }
-
+/*ESTILOS DE EL LOGIN*/
+/* INPUTS */
 .container input {
     width: 100%;
     padding: 15px;
@@ -94,6 +86,7 @@ body {
     text-align: center;
 }
 
+/* MENSAJE ERROR */
 .error {
     background: rgba(255, 0, 0, 0.2);
     padding: 12px;
@@ -103,6 +96,7 @@ body {
     font-weight: bold;
 }
 
+/* LINK VOLVER */
 .back {
     display: block;
     margin-top: 20px;
@@ -115,14 +109,97 @@ body {
     color: #ffffff;
 }
 
-/* ======================= */
-/* TABLAS                  */
-/* ======================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background: #111;
+}
+
+.vencido {
+    background: rgba(255, 0, 0, 0.35);
+    color: white;
+}
+
+.alerta {
+    background: rgba(255, 165, 0, 0.35);
+    color: white;
+}
+
+.form-card {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+/* ====== CONTENEDOR ADMIN ====== */
+.admin-container {
+    width: 95%;
+    max-width: 1600px;
+    margin: 30px auto;
+    padding: 35px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 18px;
+    box-shadow: 0 0 35px rgba(0,0,0,0.7);
+    color: #fff;
+}
+
+/* ====== TITULOS ====== */
+.admin-container h1 {
+    text-align: center;
+    font-size: 40px;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+/* ====== FORMULARIOS ====== */
+.form-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 35px;
+}
+
+.form-card input {
+    padding: 16px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+}
+
+.form-card button {
+    grid-column: 1 / -1;
+    padding: 16px;
+    font-size: 20px;
+    background: linear-gradient(135deg, #ff9800, #ff5722);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.form-card button:hover {
+    transform: scale(1.04);
+    background: linear-gradient(135deg, #ff5722, #ff9800);
+}
+
+/* ====== TABLA CONTENEDOR ====== */
 .table-wrapper {
     width: 100%;
     overflow-x: auto;
 }
 
+/* ====== TABLAS ====== */
 table {
     width: 100%;
     min-width: 900px;
@@ -156,7 +233,7 @@ tbody td {
     text-align: center;
 }
 
-/* ESTADOS */
+/* ====== ESTADOS ====== */
 .vencido {
     background: rgba(244, 67, 54, 0.85) !important;
     color: #fff;
@@ -169,42 +246,54 @@ tbody td {
     font-weight: bold;
 }
 
-/* ======================= */
-/* BOTONES Y LINKS          */
-/* ======================= */
-.admin-container a,
-.logout-btn,
-.btn-salir {
-    transition: 0.3s ease;
+/* ====== BOTON VOLVER ====== */
+.admin-container a {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 22px;
+    background: #333;
+    color: white;
     text-decoration: none;
-    color: #fff;
-    border-radius: 5px;
-    text-align: center;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: 0.3s ease;
 }
 
-/* ======================= */
-/* PANEL ADMIN              */
-/* ======================= */
-.admin-container,
-.admin-panel {
-    width: 95%;
-    max-width: 1600px;
-    margin: 30px auto;
-    padding: 35px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 18px;
-    box-shadow: 0 0 35px rgba(0,0,0,0.7);
-    color: #fff;
+.admin-container a:hover {
+    background: #111;
 }
+
+.btn-eliminar {
+    background: linear-gradient(135deg, #e53935, #c62828);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.btn-eliminar:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #c62828, #e53935);
+}
+
+/* ===== PANEL ADMIN ===== */
 
 .admin-panel {
     min-height: 100vh;
     padding: 40px 20px;
-    background:
-        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-        url("img/gym_arcadias.jpg") center/cover no-repeat;
+    background: linear-gradient(
+        rgba(0,0,0,0.65),
+        rgba(0,0,0,0.65)
+    ),
+    url("/static/img/gym_arcadias.jpg") center/cover no-repeat;
+    color: #fff;
     text-align: center;
 }
+
+/* ===== HEADER ===== */
 
 .admin-header h1 {
     font-size: 2.5rem;
@@ -216,6 +305,8 @@ tbody td {
     color: #ddd;
     margin-bottom: 40px;
 }
+
+/* ===== NAVBAR ===== */
 
 .admin-nav {
     display: grid;
@@ -230,8 +321,11 @@ tbody td {
     border: 1px solid rgba(255,255,255,0.2);
     padding: 18px;
     border-radius: 14px;
+    text-decoration: none;
+    color: #fff;
     font-size: 1.1rem;
     font-weight: 500;
+    transition: all 0.3s ease;
     backdrop-filter: blur(6px);
 }
 
@@ -241,21 +335,69 @@ tbody td {
     transform: translateY(-4px);
 }
 
+/* ===== LOGOUT ===== */
+
+.admin-actions {
+    margin-top: 30px;
+}
+
 .logout-btn {
     display: inline-block;
     padding: 12px 30px;
     border-radius: 30px;
     background: #d62828;
+    color: #fff;
+    text-decoration: none;
     font-weight: bold;
+    transition: 0.3s;
 }
 
 .logout-btn:hover {
     background: #a4161a;
 }
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++
+/*estilos de el dasboar del cliente */
+.cliente-container {
+    max-width: 400px;
+    margin: 40px auto;
+    text-align: center;
+}
 
-/* ======================= */
-/* DASHBOARD CLIENTE        */
-/* ======================= */
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.activo {
+    background: #d4edda;
+    color: #155724;
+}
+
+.alerta {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.vencido {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.sin {
+    background: #e2e3e5;
+}
+
+.btn-salir {
+    display: inline-block;
+    padding: 10px 15px;
+    background: black;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+/* ===== Contenedor principal ===== */
 .cliente-container {
     max-width: 600px;
     margin: 40px auto;
@@ -263,47 +405,81 @@ tbody td {
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    font-family: 'Arial', sans-serif;
     text-align: center;
 }
 
+/* ===== Título ===== */
 .cliente-container h1 {
     margin-bottom: 25px;
     color: #333;
 }
 
+/* ===== Tarjetas de estado ===== */
 .card {
     padding: 20px;
     border-radius: 10px;
-    margin-bottom: 20px;
-    text-align: left;
+    margin-bottom: 25px;
     color: #fff;
+    text-align: left;
 }
 
-.card.activo { background: #4CAF50; }
-.card.alerta { background: #FFA500; color: #000; }
-.card.vencido { background: #f44336; }
-.card.sin { background: #9e9e9e; color: #fff; }
+/* Activo */
+.card.activo {
+    background: #4CAF50; /* verde */
+}
 
-.card h2 { margin: 0 0 15px 0; font-size: 22px; }
-.card p { margin: 5px 0; font-size: 16px; }
+/* Por vencer */
+.card.alerta {
+    background: #FFA500; /* naranja */
+}
 
+/* Vencido */
+.card.vencido {
+    background: #f44336; /* rojo */
+}
+
+/* Sin membresía */
+.card.sin {
+    background: #9e9e9e; /* gris */
+}
+
+/* ===== Texto dentro de la tarjeta ===== */
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+
+.card p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* ===== QR ===== */
 .qr-img {
+    margin-top: 15px;
     width: 200px;
     height: 200px;
-    margin: 15px auto;
-    display: block;
 }
 
+/* ===== Botón cerrar sesión ===== */
 .btn-salir {
     display: inline-block;
     margin-top: 15px;
     padding: 10px 25px;
     background: #f44336;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s;
 }
 
-.btn-salir:hover { background: #d32f2f; }
+.btn-salir:hover {
+    background: #d32f2f;
+}
 
-/* RESPONSIVO */
+/* ===== Responsivo ===== */
 @media (max-width: 650px) {
     .cliente-container {
         padding: 20px;
@@ -314,3 +490,4 @@ tbody td {
         height: 150px;
     }
 }
+
