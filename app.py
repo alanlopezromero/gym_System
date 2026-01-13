@@ -7,15 +7,22 @@ import os
 import qrcode
 
 
-
 def generar_qr_cliente(cliente_id):
-    ruta_qr = f"static/qr/cliente_{cliente_id}.png"
+    # Carpeta donde se guardan los QR
+    qr_dir = "static/qr"
+    if not os.path.exists(qr_dir):
+        os.makedirs(qr_dir)  # 🔹 crea la carpeta si no existe
 
+    # Ruta del archivo QR
+    ruta_qr = os.path.join(qr_dir, f"cliente_{cliente_id}.png")
+
+    # Generar QR si no existe
     if not os.path.exists(ruta_qr):
         img = qrcode.make(f"CLIENTE:{cliente_id}")
         img.save(ruta_qr)
 
     return ruta_qr
+
 
 # -----------------------------
 # CONFIGURACIÓN
