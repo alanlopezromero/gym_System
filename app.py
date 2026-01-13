@@ -3,24 +3,21 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from datetime import date, timedelta
+from flask import Flask, request, redirect, url_for, render_template
+from models import db, Cliente  # ajusta según tu modelo
+from generar_qr import generar_qr_cliente
+ # tu función
 import os
 import qrcode
 
-
 def generar_qr_cliente(cliente_id):
-    # Carpeta donde se guardan los QR
     qr_dir = "static/qr"
     if not os.path.exists(qr_dir):
-        os.makedirs(qr_dir)  # 🔹 crea la carpeta si no existe
-
-    # Ruta del archivo QR
+        os.makedirs(qr_dir)
     ruta_qr = os.path.join(qr_dir, f"cliente_{cliente_id}.png")
-
-    # Generar QR si no existe
     if not os.path.exists(ruta_qr):
         img = qrcode.make(f"CLIENTE:{cliente_id}")
         img.save(ruta_qr)
-
     return ruta_qr
 
 
@@ -203,6 +200,7 @@ def test_db():
         return "Conexión a la base de datos exitosa ✅"
     except Exception as e:
         return f"Error: {e}"
+    
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -246,8 +244,13 @@ def mensualidades():
         db.session.add(nueva)
         db.session.commit()  # Guardamos la mensualidad
 
+        # 🔹 Asegurarnos que la carpeta QR exista
+        qr_dir = "static/qr"
+        if not os.path.exists(qr_dir):
+            os.makedirs(qr_dir)
+
         # 🔹 Generar QR automáticamente
-        ruta_qr = f"static/qr/cliente_{cliente.id}.png"
+        ruta_qr = os.path.join(qr_dir, f"cliente_{cliente.id}.png")
         if not os.path.exists(ruta_qr):
             img = qrcode.make(f"CLIENTE:{cliente.id}")
             img.save(ruta_qr)
