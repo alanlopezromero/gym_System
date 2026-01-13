@@ -446,3 +446,29 @@ body {
     box-shadow: 0 0 20px rgba(255, 71, 87, 0.9);
 }
 
+/* Estilos para los enlaces del panel admin como botones */
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.admin-nav a {
+    display: inline-block;
+    padding: 15px 40px;
+    background: #e63946; /* mismo color que los botones de index */
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 30px;
+    text-align: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.admin-nav a:hover {
+    background: #ff4757; /* efecto hover igual que index */
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.7);
+}
