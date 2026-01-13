@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import date, timedelta
 from flask import Flask, request, redirect, url_for, render_template
 from generar_qr import generar_qr_cliente
+from flask import url_for
 import os
 import qrcode
 
@@ -239,7 +240,6 @@ def test_db():
         return "Conexión a la base de datos exitosa ✅"
     except Exception as e:
         return f"Error: {e}"
-    
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -288,10 +288,14 @@ def mensualidades():
         if not os.path.exists(qr_dir):
             os.makedirs(qr_dir)
 
-        # 🔹 Generar QR automáticamente
+        # 🔹 Generar ruta del QR
         ruta_qr = os.path.join(qr_dir, f"cliente_{cliente.id}.png")
+
+        # 🔹 Generar QR automáticamente con la URL de acceso
         if not os.path.exists(ruta_qr):
-            img = qrcode.make(f"CLIENTE:{cliente.id}")
+            # url_for con _external=True para generar URL completa
+            url_cliente = url_for("acceso_qr", cliente_id=cliente.id, _external=True)
+            img = qrcode.make(url_cliente)
             img.save(ruta_qr)
 
         flash("✅ Mensualidad registrada correctamente")
@@ -304,6 +308,7 @@ def mensualidades():
         registros=registros,
         hoy=hoy
     )
+
 
 
 

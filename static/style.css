@@ -193,147 +193,6 @@ th {
     background: linear-gradient(135deg, #ff5722, #ff9800);
 }
 
-/* ====== TABLA CONTENEDOR ====== */
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
-/* ====== TABLAS ====== */
-table {
-    width: 100%;
-    min-width: 900px;
-    border-collapse: collapse;
-    margin-top: 25px;
-    font-size: 18px;
-}
-
-thead {
-    background: linear-gradient(135deg, #1e88e5, #1565c0);
-}
-
-thead th {
-    padding: 18px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    text-align: center;
-}
-
-tbody tr {
-    background: rgba(255, 255, 255, 0.08);
-    transition: 0.25s ease;
-}
-
-tbody tr:hover {
-    background: rgba(255, 255, 255, 0.18);
-}
-
-tbody td {
-    padding: 16px;
-    text-align: center;
-}
-
-/* ====== ESTADOS ====== */
-.vencido {
-    background: rgba(244, 67, 54, 0.85) !important;
-    color: #fff;
-    font-weight: bold;
-}
-
-.alerta {
-    background: rgba(255, 193, 7, 0.85) !important;
-    color: #000;
-    font-weight: bold;
-}
-
-/* ====== BOTON VOLVER ====== */
-.admin-container a {
-    display: inline-block;
-    margin-top: 30px;
-    padding: 12px 22px;
-    background: #333;
-    color: white;
-    text-decoration: none;
-    border-radius: 10px;
-    font-size: 16px;
-    transition: 0.3s ease;
-}
-
-.admin-container a:hover {
-    background: #111;
-}
-
-.btn-eliminar {
-    background: linear-gradient(135deg, #e53935, #c62828);
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.2s;
-}
-
-.btn-eliminar:hover {
-    transform: scale(1.05);
-    background: linear-gradient(135deg, #c62828, #e53935);
-}
-
-/* ===== PANEL ADMIN ===== */
-
-.admin-panel {
-    min-height: 100vh;
-    padding: 40px 20px;
-    background: linear-gradient(
-        rgba(0,0,0,0.65),
-        rgba(0,0,0,0.65)
-    ),
-    url("/static/img/gym_arcadias.jpg") center/cover no-repeat;
-    color: #fff;
-    text-align: center;
-}
-
-/* ===== HEADER ===== */
-
-.admin-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-
-.admin-header p {
-    font-size: 1.1rem;
-    color: #ddd;
-    margin-bottom: 40px;
-}
-
-/* ===== NAVBAR ===== */
-
-.admin-nav {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
-    max-width: 900px;
-    margin: 0 auto 40px;
-}
-
-.admin-nav a {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255,255,255,0.2);
-    padding: 18px;
-    border-radius: 14px;
-    text-decoration: none;
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(6px);
-}
-
-.admin-nav a:hover {
-    background: #ffb703;
-    color: #000;
-    transform: translateY(-4px);
-}
 
 /* ===== LOGOUT ===== */
 
@@ -490,4 +349,15 @@ tbody td {
         height: 150px;
     }
 }
+
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin:0; }
+.cliente-container { max-width: 500px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+h1 { text-align: center; }
+.card { padding: 15px; margin: 15px 0; border-radius: 8px; text-align: center; }
+.card.activo { background-color: #d4edda; }
+.card.alerta { background-color: #fff3cd; }
+.card.vencido { background-color: #f8d7da; }
+.card.sin { background-color: #e2e3e5; }
+.qr-img { width: 150px; height: 150px; margin: 10px auto; display: block; }
+.btn-salir { display: block; margin: 10px auto; padding: 10px 20px; background: #dc3545; color: #fff; border-radius: 5px; text-decoration: none; text-align: center; }
 
