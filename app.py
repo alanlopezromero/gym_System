@@ -241,7 +241,6 @@ def test_db():
     except Exception as e:
         return f"Error: {e}"
     
-    
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -257,14 +256,14 @@ def mensualidades():
         fecha_pago = datetime.strptime(request.form.get("fecha_pago"), "%Y-%m-%d").date()
         fecha_vencimiento = fecha_pago + timedelta(days=30)
 
-        # Buscar cliente por nombre + apellido
+        # 🔹 Buscar cliente por nombre + apellido
         cliente = Cliente.query.filter_by(nombre=nombre, apellido=apellidos).first()
 
         if not cliente:
-            flash("❌ Este cliente no existe. Debe registrarse primero.")
+            flash("❌ Este cliente no existe. Debe registrarse primero desde el QR.")
             return redirect(url_for("mensualidades"))
 
-        # Crear mensualidad
+        # 🔹 Crear mensualidad
         nueva = Mensualidad(
             cliente_id=cliente.id,
             nombre=cliente.nombre,
@@ -277,25 +276,24 @@ def mensualidades():
         db.session.add(nueva)
         db.session.commit()
 
-        # Carpeta QR
+        # 🔹 Carpeta QR
         qr_dir = os.path.join(app.static_folder, "qr")
         if not os.path.exists(qr_dir):
             os.makedirs(qr_dir)
 
-        # Ruta completa del QR
+        # 🔹 Ruta completa del QR
         nombre_qr = f"cliente_{cliente.id}.png"
         ruta_qr = os.path.join(qr_dir, nombre_qr)
 
-        # Generar QR si no existe
-        if not os.path.exists(ruta_qr):
-            url_cliente = url_for("acceso_qr", cliente_id=cliente.id, _external=True)
-            img = qrcode.make(url_cliente)
-            img.save(ruta_qr)
+        # 🔹 Generar QR siempre (actualiza si existe)
+        url_cliente = url_for("acceso_qr", cliente_id=cliente.id, _external=True)
+        img = qrcode.make(url_cliente)
+        img.save(ruta_qr)
 
-        flash("✅ Mensualidad registrada correctamente")
+        flash("✅ Mensualidad registrada correctamente y QR actualizado.")
         registros = Mensualidad.query.all()  # Recargar registros
 
-    # Crear URLs de QR para el template
+    # 🔹 Crear URLs de QR para el template
     qr_urls = {m.id: url_for("static", filename=f"qr/cliente_{m.cliente_id}.png") for m in registros}
 
     return render_template(
