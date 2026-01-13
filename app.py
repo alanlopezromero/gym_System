@@ -472,30 +472,95 @@ def eliminar_producto(id):
     return redirect(url_for("productos_view"))
 
 #---------------------------------------------
+@app.route("/qr/<int:cliente_id>")
+def acceso_qr(cliente_id):
+    """
+    Esta ruta se activa cuando el cliente escanea su QR.
+    Guarda el cliente_id en sesión temporal para pre-llenar el registro si es necesario.
+    """
+    session["qr_cliente_id"] = cliente_id
+    return redirect(url_for("login_cliente"))
+
 
 @app.route('/login-cliente', methods=['GET', 'POST'])
 def login_cliente():
+    qr_cliente_id = session.get("qr_cliente_id")  # Puede ser None
+
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+        # --- LOGIN EXISTENTE ---
+        email = request.form.get('email')
+        password = request.form.get('password')
 
         cliente = Cliente.query.filter_by(email=email).first()
 
-        if cliente and cliente.check_password(password):
-            session['cliente_id'] = cliente.id
-
-            # 🔐 VALIDACIÓN DE QR (SI VIENE DE UNO)
-            if "qr_cliente_id" in session:
-                if session["qr_cliente_id"] != cliente.id:
+        if cliente:
+            if cliente.check_password(password):
+                session['cliente_id'] = cliente.id
+                if qr_cliente_id and qr_cliente_id != cliente.id:
                     flash("❌ Este QR no corresponde a tu cuenta")
                     return redirect(url_for("login_cliente"))
-                session.pop("qr_cliente_id")  # limpia el QR
-
-            return redirect(url_for('dashboard_cliente'))
+                session.pop("qr_cliente_id", None)
+                return redirect(url_for("dashboard_cliente"))
+            else:
+                flash("❌ Contraseña incorrecta")
         else:
-            flash('Credenciales incorrectas')
+            flash("❌ No existe ninguna cuenta con ese correo. Regístrate.")
 
-    return render_template('login_cliente.html')
+    # --- FORMULARIO DE REGISTRO PRE-LLENADO ---
+    registro_prellenado = None
+    if qr_cliente_id:
+        cliente_temp = Cliente.query.get(qr_cliente_id)
+        if cliente_temp:
+            registro_prellenado = {
+                "nombre": cliente_temp.nombre,
+                "apellido": cliente_temp.apellido,
+                "email": ""  # Dejamos vacío para que ingrese su correo real
+            }
+
+    return render_template(
+        'login_cliente.html',
+        registro_prellenado=registro_prellenado
+    )
+
+
+@app.route('/registro-cliente', methods=['POST'])
+def registro_cliente():
+    """
+    Ruta para registrar un cliente nuevo desde QR.
+    """
+    qr_cliente_id = session.get("qr_cliente_id")
+    if not qr_cliente_id:
+        flash("❌ QR inválido")
+        return redirect(url_for("login_cliente"))
+
+    nombre = request.form.get("nombre")
+    apellido = request.form.get("apellido")
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    # Verificar si ya existe un cliente con ese email
+    if Cliente.query.filter_by(email=email).first():
+        flash("❌ Ya existe un cliente con ese correo. Intenta iniciar sesión.")
+        return redirect(url_for("login_cliente"))
+
+    # Guardar el cliente
+    nuevo_cliente = Cliente(
+        id=qr_cliente_id,  # Mantener el ID del QR
+        nombre=nombre,
+        apellido=apellido,
+        email=email
+    )
+    nuevo_cliente.set_password(password)
+
+    db.session.add(nuevo_cliente)
+    db.session.commit()
+
+    session.pop("qr_cliente_id", None)
+    session["cliente_id"] = nuevo_cliente.id
+    flash("✅ Registro exitoso. Bienvenido!")
+
+    return redirect(url_for("dashboard_cliente"))
+
 
 from functools import wraps
 
@@ -571,11 +636,6 @@ def crear_mensualidad(cliente_id):
     flash("✅ Mensualidad creada correctamente")
     return redirect(url_for("admin_dashboard"))
 
-@app.route("/qr/<int:cliente_id>")
-def acceso_qr(cliente_id):
-    # Guardamos el cliente en sesión temporal
-    session["qr_cliente_id"] = cliente_id
-    return redirect(url_for("login_cliente"))
 
 @app.route("/cron/revisar-mensualidades")
 def cron_revisar_mensualidades():
