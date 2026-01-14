@@ -98,17 +98,18 @@ def revisar_mensualidades():
         if dias_restantes == 2:
             # ⚠️ 2 días antes
             enviar_correo(
-                m.cliente.email,
-                "⚠️ Tu membresía está por vencer",
-                f"Hola {m.cliente.nombre}, tu membresía vence el {m.fecha_vencimiento.strftime('%d/%m/%Y')}. ¡Renueva a tiempo!"
+                destinatario=m.cliente.email,
+                asunto="⚠️ Tu membresía está por vencer",
+                mensaje_personalizado=f"Hola {m.cliente.nombre}, tu membresía vence el {m.fecha_vencimiento.strftime('%d/%m/%Y')}. ¡Renueva a tiempo!"
             )
         elif dias_restantes == 0:
             # ❌ Día de vencimiento
             enviar_correo(
-                m.cliente.email,
-                "❌ Tu membresía vence hoy",
-                f"Hola {m.cliente.nombre}, tu membresía vence hoy ({m.fecha_vencimiento.strftime('%d/%m/%Y')}). Por favor acude a renovación."
+                destinatario=m.cliente.email,
+                asunto="❌ Tu membresía vence hoy",
+                mensaje_personalizado=f"Hola {m.cliente.nombre}, tu membresía vence hoy ({m.fecha_vencimiento.strftime('%d/%m/%Y')}). Por favor acude a renovación."
             )
+
 
 class Cliente(db.Model):
     __tablename__ = "clientes"
@@ -261,13 +262,16 @@ def logout():
 # -----------------------------
 # RUTA DE TEST DB
 # -----------------------------
+from sqlalchemy import text
+
 @app.route("/test-db")
 def test_db():
     try:
-        db.session.execute("SELECT 1")
+        db.session.execute(text("SELECT 1"))
         return "Conexión a la base de datos exitosa ✅"
     except Exception as e:
         return f"Error: {e}"
+
 
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
