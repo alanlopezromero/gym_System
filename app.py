@@ -265,30 +265,32 @@ def mensualidades():
         return redirect(url_for("login"))
 
     hoy = date.today()
-    registros = Mensualidad.query.all()
+    registros = Mensualidad.query.order_by(Mensualidad.id.desc()).all()
 
     if request.method == "POST":
-        nombre = request.form.get("nombre")
-        apellidos = request.form.get("apellidos")
+        nombre = request.form.get("nombre").strip()
+        apellidos = request.form.get("apellidos").strip()
         monto = float(request.form.get("monto"))
-        fecha_pago = datetime.strptime(request.form.get("fecha_pago"), "%Y-%m-%d").date()
+        fecha_pago = datetime.strptime(
+            request.form.get("fecha_pago"), "%Y-%m-%d"
+        ).date()
         fecha_vencimiento = fecha_pago + timedelta(days=30)
 
-        # 🔹 Buscar cliente por nombre + apellido
-        cliente = Cliente.query.filter_by(nombre=nombre, apellido=apellidos).first()
+        # 🔒 BUSCAR CLIENTE EXISTENTE (UN SOLO ID)
+        cliente = Cliente.query.filter(
+            Cliente.nombre.ilike(nombre),
+            Cliente.apellido.ilike(apellidos)
+        ).first()
 
         if not cliente:
-            # 🔹 Crear cliente temporal sin correo ni contraseña
             cliente = Cliente(
                 nombre=nombre,
-                apellido=apellidos,
-                email=None,
-                password_hash=None
+                apellido=apellidos
             )
             db.session.add(cliente)
-            db.session.commit()  # Necesitamos el ID para generar el QR
+            db.session.commit()  # ← obtenemos ID REAL
 
-        # 🔹 Crear mensualidad
+        # 🔒 CREAR MENSUALIDAD LIGADA AL MISMO CLIENTE
         nueva = Mensualidad(
             cliente_id=cliente.id,
             nombre=cliente.nombre,
@@ -298,27 +300,37 @@ def mensualidades():
             fecha_vencimiento=fecha_vencimiento,
             estado="activo"
         )
+
         db.session.add(nueva)
         db.session.commit()
 
-        # 🔹 Generar QR en memoria y guardar como base64
-        url_cliente = url_for("acceso_qr", cliente_id=cliente.id, _external=True)
+        # 🔒 QR SIEMPRE CON EL MISMO ID
+        url_cliente = url_for(
+            "acceso_qr",
+            cliente_id=cliente.id,
+            _external=True
+        )
+
         img = qrcode.make(url_cliente)
         buf = io.BytesIO()
         img.save(buf, format="PNG")
-        cliente.qr_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+        cliente.qr_base64 = base64.b64encode(
+            buf.getvalue()
+        ).decode("utf-8")
+
         db.session.commit()
 
-        flash("✅ Cliente y mensualidad registrados correctamente. QR generado.")
+        flash("✅ Mensualidad registrada y sincronizada correctamente")
 
-        # 🔹 Recargar registros para mostrarlos inmediatamente
-        registros = Mensualidad.query.all()
+        return redirect(url_for("mensualidades"))
 
     return render_template(
         "admin/mensualidades.html",
         registros=registros,
         hoy=hoy
     )
+
 
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
