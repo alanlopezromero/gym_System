@@ -7,18 +7,9 @@ import re  # Asegúrate de tener esto al inicio del archivo
 from flask_mail import Mail, Message
 from flask import Flask
 from flask_mail import Mail
-# -----------------------------
-# CONFIGURACIÓN
-# -----------------------------
-
-# -----------------------------
-# MODELOs
-# -----------------------------
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-
-
-
 
 # -----------------------------
 # SECRET KEY
@@ -30,9 +21,16 @@ app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 # -----------------------------
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# Para compatibilidad con Heroku/Render PostgreSQL
+# Compatibilidad con Heroku/Render PostgreSQL
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Añadir sslmode=require si no está presente
+if DATABASE_URL and "sslmode" not in DATABASE_URL:
+    if "?" in DATABASE_URL:
+        DATABASE_URL += "&sslmode=require"
+    else:
+        DATABASE_URL += "?sslmode=require"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -51,6 +49,7 @@ app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # contraseña de 
 app.config['MAIL_DEFAULT_SENDER'] = ("Gym System", os.environ.get('MAIL_USERNAME'))
 
 mail = Mail(app)
+
 
 def enviar_correo(destinatario, asunto, nombre=None, fecha_vencimiento=None, mensaje_personalizado=None):
     """
