@@ -46,6 +46,7 @@ mail = Mail(app)
 
 def enviar_correo_alerta(cliente_email, asunto, mensaje):
     try:
+        print(f"Intentando enviar correo a {cliente_email}...")  # 🔹 debug
         msg = Message(
             subject=asunto,
             recipients=[cliente_email],
