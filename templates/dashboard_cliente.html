@@ -11,6 +11,14 @@
 
     <h1>🏋️ Estado de tu membresía</h1>
 
+    <!-- DEBUG (PUEDES QUITARLO DESPUÉS) -->
+    <div class="card" style="background:#222;color:#fff;font-size:14px">
+        <p><strong>Cliente logueado ID:</strong> {{ session['cliente_id'] }}</p>
+        {% if mensualidad %}
+            <p><strong>Cliente ID en mensualidad:</strong> {{ mensualidad.cliente_id }}</p>
+        {% endif %}
+    </div>
+
     {% if estado == "sin_membresia" %}
         <div class="card sin">
             <h2>⚪ Sin membresía activa</h2>
