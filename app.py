@@ -302,15 +302,14 @@ def mensualidades():
         db.session.add(nueva)
         db.session.commit()
 
-        # 🔹 ENVIAR CORREO INMEDIATO (temporalmente deshabilitado)
+        # 🔹 ENVIAR CORREO INMEDIATO
         asunto = "✅ Membresía YGM activa"
-        # enviar_correo(
-        #     destinatario=cliente.email,
-        #     asunto=asunto,
-        #     nombre=cliente.nombre,
-        #     fecha_vencimiento=fecha_vencimiento.strftime('%d/%m/%Y')
-        # )
-        print(f"📩 Se simula envío de correo a {cliente.email}")
+        enviar_correo(
+            destinatario=cliente.email,
+            asunto=asunto,
+            nombre=cliente.nombre,
+            fecha_vencimiento=fecha_vencimiento.strftime('%d/%m/%Y')
+        )
 
         flash("✅ Mensualidad registrada y correo enviado al cliente")
         return redirect(url_for("mensualidades"))
