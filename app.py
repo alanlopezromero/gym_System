@@ -1,15 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-from datetime import date, timedelta
-from flask import Flask, request, redirect, url_for, render_template
-from generar_qr import generar_qr_cliente
-from flask import url_for
+from datetime import datetime, date, timedelta
 import os
-import qrcode
-import io
-import base64
+from flask_mail import Mail, Message
 
 
 
@@ -93,21 +87,9 @@ class Cliente(db.Model):
     __tablename__ = "clientes"
 
     id = db.Column(db.Integer, primary_key=True)
-
     nombre = db.Column(db.String(100), nullable=False)
     apellido = db.Column(db.String(100), nullable=False)
-
-    email = db.Column(db.String(120), unique=True, nullable=True)
-    password_hash = db.Column(db.String(256), nullable=True)
-
-    # 🔑 AQUÍ SE GUARDA EL QR (NO SE BORRA)
-    qr_base64 = db.Column(db.Text, nullable=True)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    email = db.Column(db.String(120), nullable=False, unique=True)
 
 
 
@@ -268,29 +250,30 @@ def mensualidades():
     registros = Mensualidad.query.order_by(Mensualidad.id.desc()).all()
 
     if request.method == "POST":
+        # 📥 DATOS DEL FORMULARIO
         nombre = request.form.get("nombre").strip()
         apellidos = request.form.get("apellidos").strip()
+        email = request.form.get("email").strip().lower()
         monto = float(request.form.get("monto"))
+
         fecha_pago = datetime.strptime(
             request.form.get("fecha_pago"), "%Y-%m-%d"
         ).date()
         fecha_vencimiento = fecha_pago + timedelta(days=30)
 
-        # 🔒 BUSCAR CLIENTE EXISTENTE (UN SOLO ID)
-        cliente = Cliente.query.filter(
-            Cliente.nombre.ilike(nombre),
-            Cliente.apellido.ilike(apellidos)
-        ).first()
+        # 🔐 BUSCAR CLIENTE POR EMAIL (ÚNICO Y CORRECTO)
+        cliente = Cliente.query.filter_by(email=email).first()
 
         if not cliente:
             cliente = Cliente(
                 nombre=nombre,
-                apellido=apellidos
+                apellido=apellidos,
+                email=email
             )
             db.session.add(cliente)
-            db.session.commit()  # ← obtenemos ID REAL
+            db.session.commit()  # ← obtenemos el ID real
 
-        # 🔒 CREAR MENSUALIDAD LIGADA AL MISMO CLIENTE
+        # 📌 CREAR MENSUALIDAD LIGADA AL CLIENTE
         nueva = Mensualidad(
             cliente_id=cliente.id,
             nombre=cliente.nombre,
@@ -304,24 +287,7 @@ def mensualidades():
         db.session.add(nueva)
         db.session.commit()
 
-        # 🔒 QR SIEMPRE CON EL MISMO ID
-        url_cliente = url_for(
-            "acceso_qr",
-            cliente_id=cliente.id,
-            _external=True
-        )
-
-        img = qrcode.make(url_cliente)
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-
-        cliente.qr_base64 = base64.b64encode(
-            buf.getvalue()
-        ).decode("utf-8")
-
-        db.session.commit()
-
-        flash("✅ Mensualidad registrada y sincronizada correctamente")
+        flash("✅ Mensualidad registrada correctamente")
 
         return redirect(url_for("mensualidades"))
 
@@ -330,6 +296,7 @@ def mensualidades():
         registros=registros,
         hoy=hoy
     )
+
 
 
 
@@ -488,221 +455,7 @@ def eliminar_producto(id):
 
     return redirect(url_for("productos_view"))
 
-@app.route("/qr/<int:cliente_id>")
-def acceso_qr(cliente_id):
-    """
-    El cliente escanea su QR.
-    Guarda el cliente_id temporalmente para completar registro o login.
-    """
-    session["qr_cliente_id"] = cliente_id
-    return redirect(url_for("login_cliente"))
 
-@app.route('/login-cliente', methods=['GET', 'POST'])
-def login_cliente():
-    qr_cliente_id = session.get("qr_cliente_id")
-
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        # 🔐 Validación básica
-        if not email or not password:
-            flash("❌ Debes completar todos los campos")
-            return redirect(url_for("login_cliente"))
-
-        cliente = Cliente.query.filter_by(email=email).first()
-
-        # =========================
-        # 1️⃣ LOGIN NORMAL
-        # =========================
-        if cliente and cliente.password_hash:
-            if cliente.check_password(password):
-                session['cliente_id'] = cliente.id
-                session.pop("qr_cliente_id", None)
-                return redirect(url_for("dashboard_cliente"))
-            else:
-                flash("❌ Contraseña incorrecta")
-                return redirect(url_for("login_cliente"))
-
-        # =========================
-        # 2️⃣ CORREO EXISTE PERO SIN PASSWORD
-        # =========================
-        if cliente and not cliente.password_hash:
-            flash("⚠️ Este usuario debe completar su registro escaneando su QR")
-            return redirect(url_for("login_cliente"))
-
-        # =========================
-        # 3️⃣ REGISTRO DESDE QR
-        # =========================
-        if not qr_cliente_id:
-            flash("❌ QR inválido o expirado")
-            return redirect(url_for("login_cliente"))
-
-        cliente_temp = Cliente.query.get(qr_cliente_id)
-        if not cliente_temp:
-            flash("❌ Cliente no encontrado")
-            return redirect(url_for("login_cliente"))
-
-        # Evitar doble registro
-        if cliente_temp.password_hash:
-            flash("⚠️ Este QR ya fue utilizado")
-            session.pop("qr_cliente_id", None)
-            return redirect(url_for("login_cliente"))
-
-        # Guardar credenciales
-        cliente_temp.email = email
-        cliente_temp.set_password(password)
-        db.session.commit()
-
-        session['cliente_id'] = cliente_temp.id
-        session.pop("qr_cliente_id", None)
-
-        flash("✅ Registro completado correctamente")
-        return redirect(url_for("dashboard_cliente"))
-
-    # =========================
-    # GET → Prellenado desde QR
-    # =========================
-    registro_prellenado = None
-    if qr_cliente_id:
-        cliente_temp = Cliente.query.get(qr_cliente_id)
-        if cliente_temp:
-            registro_prellenado = {
-                "nombre": cliente_temp.nombre,
-                "apellido": cliente_temp.apellido,
-                "email": ""
-            }
-
-    return render_template(
-        "login_cliente.html",
-        registro_prellenado=registro_prellenado
-    )
-
-
-@app.route('/registro-cliente', methods=['GET', 'POST'])
-def registro_cliente():
-    """
-    Ruta para que un cliente se registre por sí mismo.
-    """
-    if request.method == "POST":
-        nombre = request.form.get("nombre")
-        apellido = request.form.get("apellido")
-        email = request.form.get("email")
-        password = request.form.get("password")
-
-        # Verificar si ya existe un cliente con ese email
-        if Cliente.query.filter_by(email=email).first():
-            flash("❌ Ya existe un cliente con ese correo. Intenta iniciar sesión.")
-            return redirect(url_for("registro_cliente"))
-
-        # Guardar el cliente
-        nuevo_cliente = Cliente(
-            nombre=nombre,
-            apellido=apellido,
-            email=email
-        )
-        nuevo_cliente.set_password(password)
-
-        db.session.add(nuevo_cliente)
-        db.session.commit()
-
-        session["cliente_id"] = nuevo_cliente.id
-        flash("✅ Registro exitoso. Bienvenido!")
-
-        return redirect(url_for("dashboard_cliente"))
-
-    return render_template("registro_cliente.html")
-
-
-from functools import wraps
-
-def login_cliente_required(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if 'cliente_id' not in session:
-            return redirect(url_for('login_cliente'))
-        return f(*args, **kwargs)
-    return wrapper
-
-
-from datetime import date, timedelta
-
-@app.route('/dashboard')
-@login_cliente_required
-def dashboard_cliente():
-    cliente_id = session['cliente_id']
-    hoy = date.today()
-
-    # 🔹 Última mensualidad del cliente
-    mensualidad = (
-        Mensualidad.query
-        .filter_by(cliente_id=cliente_id)
-        .order_by(Mensualidad.fecha_vencimiento.desc())
-        .first()
-    )
-
-    if not mensualidad:
-        estado = "sin_membresia"
-        fecha_vencimiento = None
-        qr_url = None
-    else:
-        if hoy > mensualidad.fecha_vencimiento:
-            estado = "vencido"
-            qr_url = None
-        elif hoy >= mensualidad.fecha_vencimiento - timedelta(days=2):
-            estado = "por_vencer"
-            qr_url = generar_qr_cliente(cliente_id)
-        else:
-            estado = "activo"
-            qr_url = generar_qr_cliente(cliente_id)
-
-        fecha_vencimiento = mensualidad.fecha_vencimiento
-
-    return render_template(
-        "dashboard_cliente.html",
-        mensualidad=mensualidad,
-        estado=estado,
-        fecha_vencimiento=fecha_vencimiento,
-        qr_url=qr_url
-    )
-
-
-
-@app.route("/admin/mensualidad/crear/<int:cliente_id>", methods=["POST"])
-def crear_mensualidad(cliente_id):
-    if "admin_id" not in session:
-        return redirect(url_for("login"))
-
-    fecha_pago = date.today()
-    fecha_vencimiento = fecha_pago + timedelta(days=30)
-
-    nueva = Mensualidad(
-        cliente_id=cliente_id,
-        nombre=request.form["nombre"],
-        apellidos=request.form["apellidos"],
-        monto=request.form["monto"],
-        fecha_pago=fecha_pago,
-        fecha_vencimiento=fecha_vencimiento,
-        estado="activo"
-    )
-
-    db.session.add(nueva)
-    db.session.commit()
-    generar_qr_cliente(cliente_id)
-
-
-    flash("✅ Mensualidad creada correctamente")
-    return redirect(url_for("admin_dashboard"))
-
-
-@app.route("/cron/revisar-mensualidades")
-def cron_revisar_mensualidades():
-    token = request.args.get("token")
-    if token != os.environ.get("CRON_TOKEN"):
-        return "❌ No autorizado", 401
-
-    revisar_mensualidades()
-    return "✅ Mensualidades revisadas"
 
 
 
