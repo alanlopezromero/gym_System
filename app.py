@@ -501,13 +501,9 @@ def login_cliente():
         cliente = Cliente.query.filter_by(email=email).first()
 
         # =========================
-        # LOGIN NORMAL
+        # 1️⃣ LOGIN NORMAL
         # =========================
-        if cliente:
-            if not cliente.password_hash:
-                flash("❌ Este usuario debe completar su registro desde el QR")
-                return redirect(url_for("login_cliente"))
-
+        if cliente and cliente.password_hash:
             if cliente.check_password(password):
                 session['cliente_id'] = cliente.id
                 session.pop("qr_cliente_id", None)
@@ -517,7 +513,14 @@ def login_cliente():
                 return redirect(url_for("login_cliente"))
 
         # =========================
-        # REGISTRO DESDE QR
+        # 2️⃣ CORREO EXISTE PERO SIN PASSWORD
+        # =========================
+        if cliente and not cliente.password_hash:
+            flash("⚠️ Este usuario debe completar su registro escaneando su QR")
+            return redirect(url_for("login_cliente"))
+
+        # =========================
+        # 3️⃣ REGISTRO DESDE QR
         # =========================
         if not qr_cliente_id:
             flash("❌ QR inválido o expirado")
@@ -528,7 +531,7 @@ def login_cliente():
             flash("❌ Cliente no encontrado")
             return redirect(url_for("login_cliente"))
 
-        # Evitar que se vuelva a registrar
+        # Evitar doble registro
         if cliente_temp.password_hash:
             flash("⚠️ Este QR ya fue utilizado")
             session.pop("qr_cliente_id", None)
@@ -546,7 +549,7 @@ def login_cliente():
         return redirect(url_for("dashboard_cliente"))
 
     # =========================
-    # GET → Prellenado
+    # GET → Prellenado desde QR
     # =========================
     registro_prellenado = None
     if qr_cliente_id:
@@ -562,7 +565,6 @@ def login_cliente():
         "login_cliente.html",
         registro_prellenado=registro_prellenado
     )
-
 
 
 @app.route('/registro-cliente', methods=['GET', 'POST'])
