@@ -20,18 +20,28 @@ app = Flask(__name__)
 
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
-
-# Detecta la base de datos en Render o usa SQLite local
+# -----------------------------
+# BASE DE DATOS
+# -----------------------------
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # Compatibilidad con SQLAlchemy
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
+# 🔹 Agregar sslmode=require automáticamente para Render
+if DATABASE_URL and "sslmode" not in DATABASE_URL:
+    if "?" in DATABASE_URL:
+        DATABASE_URL += "&sslmode=require"
+    else:
+        DATABASE_URL += "?sslmode=require"
+
+# Configuración final de SQLAlchemy
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
 
 from flask_mail import Mail, Message
 
