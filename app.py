@@ -23,22 +23,25 @@ app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 # -----------------------------
 # BASE DE DATOS
 # -----------------------------
+
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
+
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# Compatibilidad con SQLAlchemy
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# 🔹 Agregar sslmode=require automáticamente para Render
-if DATABASE_URL and "sslmode" not in DATABASE_URL:
-    if "?" in DATABASE_URL:
-        DATABASE_URL += "&sslmode=require"
-    else:
-        DATABASE_URL += "?sslmode=require"
+# Agregar sslmode=require
+if DATABASE_URL:
+    url = urlparse(DATABASE_URL)
+    query = parse_qs(url.query)
+    query["sslmode"] = ["require"]  # fuerza SSL
+    new_query = urlencode(query, doseq=True)
+    DATABASE_URL = urlunparse((url.scheme, url.netloc, url.path, url.params, new_query, url.fragment))
 
-# Configuración final de SQLAlchemy
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 
 db = SQLAlchemy(app)
 
