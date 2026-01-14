@@ -16,10 +16,6 @@ from flask_mail import Mail, Message
 
 app = Flask(__name__)
 
-from app import app, enviar_correo_alerta
-
-with app.app_context():
-    enviar_correo_alerta("tudestino@gmail.com", "Prueba de correo", "¡Este es un test desde Flask-Mail!")
 
 
 
