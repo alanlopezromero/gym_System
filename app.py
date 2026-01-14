@@ -25,13 +25,6 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# Añadir sslmode=require si no está presente
-if DATABASE_URL and "sslmode" not in DATABASE_URL:
-    if "?" in DATABASE_URL:
-        DATABASE_URL += "&sslmode=require"
-    else:
-        DATABASE_URL += "?sslmode=require"
-
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
