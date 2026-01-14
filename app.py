@@ -3,12 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date, timedelta
 import os
+import re  # Asegúrate de tener esto al inicio del archivo
 from flask_mail import Mail, Message
-
-
-
-
-
 
 # -----------------------------
 # CONFIGURACIÓN
@@ -241,6 +237,7 @@ def test_db():
 
 
 
+
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -250,30 +247,27 @@ def mensualidades():
     registros = Mensualidad.query.order_by(Mensualidad.id.desc()).all()
 
     if request.method == "POST":
-        # 📥 DATOS DEL FORMULARIO
         nombre = request.form.get("nombre").strip()
         apellidos = request.form.get("apellidos").strip()
-        email = request.form.get("email").strip().lower()
-        monto = float(request.form.get("monto"))
+        email = request.form.get("email").strip().lower()  # Nuevo campo
 
-        fecha_pago = datetime.strptime(
-            request.form.get("fecha_pago"), "%Y-%m-%d"
-        ).date()
+        # ✅ VALIDACIÓN DEL EMAIL
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            flash("❌ Email inválido")
+            return redirect(url_for("mensualidades"))
+
+        monto = float(request.form.get("monto"))
+        fecha_pago = datetime.strptime(request.form.get("fecha_pago"), "%Y-%m-%d").date()
         fecha_vencimiento = fecha_pago + timedelta(days=30)
 
-        # 🔐 BUSCAR CLIENTE POR EMAIL (ÚNICO Y CORRECTO)
+        # 🔒 BUSCAR CLIENTE EXISTENTE POR EMAIL
         cliente = Cliente.query.filter_by(email=email).first()
-
         if not cliente:
-            cliente = Cliente(
-                nombre=nombre,
-                apellido=apellidos,
-                email=email
-            )
+            cliente = Cliente(nombre=nombre, apellido=apellidos, email=email)
             db.session.add(cliente)
-            db.session.commit()  # ← obtenemos el ID real
+            db.session.commit()  # ID real
 
-        # 📌 CREAR MENSUALIDAD LIGADA AL CLIENTE
+        # 🔒 CREAR MENSUALIDAD
         nueva = Mensualidad(
             cliente_id=cliente.id,
             nombre=cliente.nombre,
@@ -283,21 +277,64 @@ def mensualidades():
             fecha_vencimiento=fecha_vencimiento,
             estado="activo"
         )
-
         db.session.add(nueva)
         db.session.commit()
 
-        flash("✅ Mensualidad registrada correctamente")
+        # 🔹 ENVIAR CORREO INMEDIATO
+        asunto = "✅ Membresía YGM activa"
+        mensaje = f"""
+Hola {cliente.nombre},
 
+Tu membresía en YGM ha sido activada correctamente.
+
+🗓 Fecha de inicio: {fecha_pago.strftime('%d/%m/%Y')}
+🗓 Fecha de vencimiento: {fecha_vencimiento.strftime('%d/%m/%Y')}
+💰 Monto: ${monto:.2f}
+
+¡Gracias por ser parte de YGM!
+"""
+        enviar_correo_alerta(cliente.email, asunto, mensaje)
+
+        flash("✅ Mensualidad registrada y correo enviado al cliente")
         return redirect(url_for("mensualidades"))
 
-    return render_template(
-        "admin/mensualidades.html",
-        registros=registros,
-        hoy=hoy
-    )
+    return render_template("admin/mensualidades.html", registros=registros, hoy=hoy)
 
 
+
+def revisar_mensualidades():
+    hoy = date.today()
+    mensualidades = Mensualidad.query.all()
+
+    for m in mensualidades:
+        dias_restantes = (m.fecha_vencimiento - hoy).days
+
+        if dias_restantes == 2:
+            # Recordatorio 2 días antes
+            enviar_correo_alerta(
+                m.cliente.email,
+                "⚠️ Tu membresía está por vencer",
+                f"Hola {m.cliente.nombre}, tu membresía vence el {m.fecha_vencimiento.strftime('%d/%m/%Y')}. ¡Renueva a tiempo!"
+            )
+        elif dias_restantes == 0:
+            # Vencimiento hoy
+            enviar_correo_alerta(
+                m.cliente.email,
+                "❌ Tu membresía vence hoy",
+                f"Hola {m.cliente.nombre}, tu membresía vence hoy ({m.fecha_vencimiento.strftime('%d/%m/%Y')}). Por favor acude a renovación."
+            )
+
+
+from flask_apscheduler import APScheduler
+
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
+@scheduler.task('cron', id='revisar_mensualidades', hour=8)
+def tarea_diaria():
+    with app.app_context():
+        revisar_mensualidades()
 
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
