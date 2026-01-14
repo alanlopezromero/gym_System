@@ -1,13 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date, timedelta
+from flask_apscheduler import APScheduler
+from sqlalchemy import text
 import os
-import re  # Asegúrate de tener esto al inicio del archivo
-from flask_mail import Mail, Message
-from flask import Flask
-from flask_mail import Mail
-from flask_sqlalchemy import SQLAlchemy
+import re
+
 
 app = Flask(__name__)
 
@@ -195,8 +195,10 @@ def calcular_estado_mensualidad(mensualidad):
 
 from werkzeug.security import generate_password_hash
 
-with app.app_context():
-    db.create_all()
+if DATABASE_URL is None:
+    with app.app_context():
+        db.create_all()
+
 
     admin = Admin.query.filter_by(usuario="adminJuan").first()
     if not admin:
@@ -325,40 +327,18 @@ def mensualidades():
 
 
 
-
-def revisar_mensualidades():
-    hoy = date.today()
-    mensualidades = Mensualidad.query.all()
-
-    for m in mensualidades:
-        dias_restantes = (m.fecha_vencimiento - hoy).days
-
-        if dias_restantes == 2:
-            # Recordatorio 2 días antes
-            enviar_correo(
-                m.cliente.email,
-                "⚠️ Tu membresía está por vencer",
-                f"Hola {m.cliente.nombre}, tu membresía vence el {m.fecha_vencimiento.strftime('%d/%m/%Y')}. ¡Renueva a tiempo!"
-            )
-        elif dias_restantes == 0:
-            # Vencimiento hoy
-            enviar_correo(
-                m.cliente.email,
-                "❌ Tu membresía vence hoy",
-                f"Hola {m.cliente.nombre}, tu membresía vence hoy ({m.fecha_vencimiento.strftime('%d/%m/%Y')}). Por favor acude a renovación."
-            )
-
-
 from flask_apscheduler import APScheduler
 
-scheduler = APScheduler()
-scheduler.init_app(app)
-scheduler.start()
+if os.environ.get("RENDER") is None:
+    scheduler = APScheduler()
+    scheduler.init_app(app)
+    scheduler.start()
 
-@scheduler.task('cron', id='revisar_mensualidades', hour=8)
-def tarea_diaria():
-    with app.app_context():
-        revisar_mensualidades()
+    @scheduler.task('cron', id='revisar_mensualidades', hour=8)
+    def tarea_diaria():
+        with app.app_context():
+            revisar_mensualidades()
+
 
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
@@ -468,7 +448,7 @@ def eliminar_bebida(id):
 
 @app.route("/admin/bebidas/total")
 def total_bebidas():
-    if "admin_id" not in session:
+    if "admin_id" not in session:    
         return {"total": 0}
 
     total = db.session.query(
