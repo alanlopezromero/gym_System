@@ -57,19 +57,24 @@
 
                     <!-- QR CORRECTO (BASE64) -->
                     <td>
-                        {% if m.cliente and m.cliente.qr_base64 %}
-                            <img src="data:image/png;base64,{{ m.cliente.qr_base64 }}"
-                                 width="80"
-                                 alt="QR Cliente">
-                            <br>
-                            <a href="data:image/png;base64,{{ m.cliente.qr_base64 }}"
-                               download="cliente_{{ m.cliente.id }}.png">
-                                ⬇ Descargar QR
-                            </a>
-                        {% else %}
-                            ❌ No QR
-                        {% endif %}
-                    </td>
+    {% if m.cliente.qr_base64 %}
+        <img
+            src="data:image/png;base64,{{ m.cliente.qr_base64 }}"
+            width="80"
+            alt="QR Cliente">
+
+        <br>
+
+        <a
+            href="data:image/png;base64,{{ m.cliente.qr_base64 }}"
+            download="cliente_{{ m.cliente_id }}.png">
+            ⬇ Descargar QR
+        </a>
+    {% else %}
+        <span>❌ Sin QR</span>
+    {% endif %}
+</td>
+
 
                     <td>
                         <form method="POST"
