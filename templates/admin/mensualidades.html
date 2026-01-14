@@ -15,7 +15,7 @@
         <input type="text" name="nombre" placeholder="Nombre" required>
         <input type="text" name="apellidos" placeholder="Apellidos" required>
 
-        <!-- EMAIL (CLAVE PARA SINCRONIZAR) -->
+        <!-- EMAIL (CLAVE PARA SINCRONIZAR CORREO) -->
         <input type="email" name="email" placeholder="Correo del cliente" required>
 
         <input type="number" step="0.01" name="monto" placeholder="Monto $" required>
@@ -24,7 +24,7 @@
         <button type="submit">Registrar</button>
     </form>
 
-    <!-- TABLA -->
+    <!-- TABLA DE MENSUALIDADES -->
     <div class="table-wrapper">
         <table>
             <thead>
@@ -46,7 +46,7 @@
                     {% endif %}
                 ">
                     <td>{{ m.nombre }} {{ m.apellidos }}</td>
-                    <td>{{ m.cliente.email }}</td>
+                    <td>{{ m.cliente.email if m.cliente else m.email }}</td>
                     <td>${{ "%.2f"|format(m.monto) }}</td>
                     <td>{{ m.fecha_pago.strftime('%d/%m/%Y') }}</td>
                     <td>{{ m.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
@@ -74,7 +74,7 @@
         </table>
     </div>
 
-    <!-- TOTAL -->
+    <!-- TOTAL MENSUALIDADES -->
     <div class="total-box">
         <h2>Total mensualidades</h2>
         <h1>$<span id="total-mensualidades">0.00</span></h1>
@@ -83,7 +83,7 @@
     <a class="btn-volver" href="/admin">⬅ Volver al panel</a>
 </div>
 
-<!-- JS TOTAL -->
+<!-- JS TOTAL DINÁMICO -->
 <script>
 function cargarTotalMensualidades() {
     fetch("/admin/mensualidades/total")

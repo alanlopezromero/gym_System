@@ -48,29 +48,57 @@ db = SQLAlchemy(app)
 
 
 from flask_mail import Mail, Message
+import os
 
-# Configuración de correo (usa tu SMTP real)
+# Configuración de correo usando variables de entorno
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False  # Asegúrate de que TLS esté activado, no SSL
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')  # tu correo
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # contraseña de app
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')  # remitente por defecto
 
+# Inicializar Flask-Mail
 mail = Mail(app)
 
-def enviar_correo_alerta(cliente_email, asunto, mensaje):
+def enviar_correo(destinatario, asunto, nombre=None, fecha_vencimiento=None, mensaje_personalizado=None):
+    """
+    Envía un correo usando Flask-Mail.
+
+    Parámetros:
+    - destinatario: str, email del usuario
+    - asunto: str, asunto del correo
+    - nombre: str, nombre del usuario (opcional)
+    - fecha_vencimiento: str, fecha de vencimiento (opcional)
+    - mensaje_personalizado: str, si quieres enviar un mensaje diferente al predeterminado
+    """
     try:
-        print(f"Intentando enviar correo a {cliente_email}...")  # 🔹 debug
+        if mensaje_personalizado:
+            cuerpo = mensaje_personalizado
+        elif nombre and fecha_vencimiento:
+            cuerpo = f"""
+Hola {nombre},
+
+Hemos recibido tu pago de mensualidad.
+Tu próxima fecha de vencimiento es: {fecha_vencimiento}
+
+Gracias por tu preferencia.
+            """
+        else:
+            cuerpo = "Este es un mensaje automático de tu sistema."
+
         msg = Message(
             subject=asunto,
-            recipients=[cliente_email],
-            body=mensaje,
-            sender=app.config['MAIL_USERNAME']
+            recipients=[destinatario],
+            body=cuerpo,
+            sender=app.config['MAIL_DEFAULT_SENDER']
         )
+
         mail.send(msg)
-        print(f"✅ Correo enviado a {cliente_email}")
+        print(f"✅ Correo enviado a {destinatario}")
     except Exception as e:
-        print(f"❌ Error al enviar correo a {cliente_email}: {e}")
+        print(f"❌ Error al enviar correo a {destinatario}: {e}")
 
 def revisar_mensualidades():
     hoy = date.today()
@@ -81,14 +109,14 @@ def revisar_mensualidades():
 
         if dias_restantes == 2:
             # ⚠️ 2 días antes
-            enviar_correo_alerta(
+            enviar_correo(
                 m.cliente.email,
                 "⚠️ Tu membresía está por vencer",
                 f"Hola {m.cliente.nombre}, tu membresía vence el {m.fecha_vencimiento.strftime('%d/%m/%Y')}. ¡Renueva a tiempo!"
             )
         elif dias_restantes == 0:
             # ❌ Día de vencimiento
-            enviar_correo_alerta(
+            enviar_correo(
                 m.cliente.email,
                 "❌ Tu membresía vence hoy",
                 f"Hola {m.cliente.nombre}, tu membresía vence hoy ({m.fecha_vencimiento.strftime('%d/%m/%Y')}). Por favor acude a renovación."
@@ -252,7 +280,6 @@ def test_db():
 
 
 
-
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -297,19 +324,12 @@ def mensualidades():
 
         # 🔹 ENVIAR CORREO INMEDIATO
         asunto = "✅ Membresía YGM activa"
-        mensaje = f"""
-Hola {cliente.nombre},
-
-Tu membresía en YGM ha sido activada correctamente.
-
-🗓 Fecha de inicio: {fecha_pago.strftime('%d/%m/%Y')}
-🗓 Fecha de vencimiento: {fecha_vencimiento.strftime('%d/%m/%Y')}
-💰 Monto: ${monto:.2f}
-
-¡Gracias por ser parte de YGM!
-"""
-        # enviar_correo_alerta(cliente.email, asunto, mensaje)  # temporalmente deshabilitado
-        print(f"📩 Se simula envío de correo a {cliente.email}")
+        enviar_correo(
+            destinatario=cliente.email,
+            asunto=asunto,
+            nombre=cliente.nombre,
+            fecha_vencimiento=fecha_vencimiento.strftime('%d/%m/%Y')
+        )
 
         flash("✅ Mensualidad registrada y correo enviado al cliente")
         return redirect(url_for("mensualidades"))
@@ -327,14 +347,14 @@ def revisar_mensualidades():
 
         if dias_restantes == 2:
             # Recordatorio 2 días antes
-            enviar_correo_alerta(
+            enviar_correo(
                 m.cliente.email,
                 "⚠️ Tu membresía está por vencer",
                 f"Hola {m.cliente.nombre}, tu membresía vence el {m.fecha_vencimiento.strftime('%d/%m/%Y')}. ¡Renueva a tiempo!"
             )
         elif dias_restantes == 0:
             # Vencimiento hoy
-            enviar_correo_alerta(
+            enviar_correo(
                 m.cliente.email,
                 "❌ Tu membresía vence hoy",
                 f"Hola {m.cliente.nombre}, tu membresía vence hoy ({m.fecha_vencimiento.strftime('%d/%m/%Y')}). Por favor acude a renovación."
