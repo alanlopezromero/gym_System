@@ -5,7 +5,8 @@ from datetime import datetime, date, timedelta
 import os
 import re  # Asegúrate de tener esto al inicio del archivo
 from flask_mail import Mail, Message
-
+from flask import Flask
+from flask_mail import Mail
 # -----------------------------
 # CONFIGURACIÓN
 # -----------------------------
@@ -18,30 +19,35 @@ app = Flask(__name__)
 
 
 
+
+# -----------------------------
+# SECRET KEY
+# -----------------------------
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
 # -----------------------------
 # BASE DE DATOS
 # -----------------------------
-DATABASE_URL = os.environ.get("DATABASE_URL")  # tu .env ya debe tener sslmode=require
-
+# La URL ya incluye ?sslmode=require en tu .env
+DATABASE_URL = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-from flask_mail import Mail, Message
-
-# Configuración de correo usando variables de entorno
+# -----------------------------
+# CORREO
+# -----------------------------
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False  # TLS activado, no SSL
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')  # tu correo
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')  # correo
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # contraseña de app
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')  # remitente por defecto
 
 mail = Mail(app)
+
 
 
 def enviar_correo(destinatario, asunto, nombre=None, fecha_vencimiento=None, mensaje_personalizado=None):
@@ -252,6 +258,9 @@ def logout():
     return redirect(url_for("index"))
 
 # Test DB
+# -----------------------------
+# RUTA DE TEST DB
+# -----------------------------
 @app.route("/test-db")
 def test_db():
     try:
