@@ -18,49 +18,31 @@ app = Flask(__name__)
 
 
 
-
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
 # -----------------------------
 # BASE DE DATOS
 # -----------------------------
-
-from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
-
-DATABASE_URL = os.environ.get("DATABASE_URL")
-
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-# Agregar sslmode=require
-if DATABASE_URL:
-    url = urlparse(DATABASE_URL)
-    query = parse_qs(url.query)
-    query["sslmode"] = ["require"]  # fuerza SSL
-    new_query = urlencode(query, doseq=True)
-    DATABASE_URL = urlunparse((url.scheme, url.netloc, url.path, url.params, new_query, url.fragment))
+DATABASE_URL = os.environ.get("DATABASE_URL")  # tu .env ya debe tener sslmode=require
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-
 db = SQLAlchemy(app)
 
-
 from flask_mail import Mail, Message
-import os
 
 # Configuración de correo usando variables de entorno
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False  # Asegúrate de que TLS esté activado, no SSL
+app.config['MAIL_USE_SSL'] = False  # TLS activado, no SSL
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')  # tu correo
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # contraseña de app
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')  # remitente por defecto
 
-# Inicializar Flask-Mail
 mail = Mail(app)
+
 
 def enviar_correo(destinatario, asunto, nombre=None, fecha_vencimiento=None, mensaje_personalizado=None):
     """
