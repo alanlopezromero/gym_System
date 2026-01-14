@@ -28,27 +28,29 @@ app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 # -----------------------------
 # BASE DE DATOS
 # -----------------------------
-# La URL ya incluye ?sslmode=require en tu .env
 DATABASE_URL = os.environ.get("DATABASE_URL")
+
+# Para compatibilidad con Heroku/Render PostgreSQL
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
 # -----------------------------
-# CORREO
+# CORREO (Flask-Mail)
 # -----------------------------
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False  # TLS activado, no SSL
+app.config['MAIL_USE_TLS'] = True       # TLS para puerto 587
+app.config['MAIL_USE_SSL'] = False      # No usar SSL si TLS está activo
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')  # correo
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # contraseña de app
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')  # remitente por defecto
+app.config['MAIL_DEFAULT_SENDER'] = ("Gym System", os.environ.get('MAIL_USERNAME'))
 
 mail = Mail(app)
-
-
 
 def enviar_correo(destinatario, asunto, nombre=None, fecha_vencimiento=None, mensaje_personalizado=None):
     """
