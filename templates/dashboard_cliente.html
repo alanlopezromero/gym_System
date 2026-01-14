@@ -25,9 +25,13 @@
         ">
 
             <h2>
-                {% if estado == "activo" %}✅ Membresía activa{% endif %}
-                {% elif estado == "por_vencer" %}⚠️ Membresía por vencer{% endif %}
-                {% elif estado == "vencido" %}❌ Membresía vencida{% endif %}
+                {% if estado == "activo" %}
+                    ✅ Membresía activa
+                {% elif estado == "por_vencer" %}
+                    ⚠️ Membresía por vencer
+                {% elif estado == "vencido" %}
+                    ❌ Membresía vencida
+                {% endif %}
             </h2>
 
             <p>
