@@ -278,8 +278,6 @@ def test_db():
     except Exception as e:
         return f"Error: {e}"
 
-
-
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -322,19 +320,21 @@ def mensualidades():
         db.session.add(nueva)
         db.session.commit()
 
-        # 🔹 ENVIAR CORREO INMEDIATO
+        # 🔹 ENVIAR CORREO INMEDIATO (temporalmente deshabilitado)
         asunto = "✅ Membresía YGM activa"
-        enviar_correo(
-            destinatario=cliente.email,
-            asunto=asunto,
-            nombre=cliente.nombre,
-            fecha_vencimiento=fecha_vencimiento.strftime('%d/%m/%Y')
-        )
+        # enviar_correo(
+        #     destinatario=cliente.email,
+        #     asunto=asunto,
+        #     nombre=cliente.nombre,
+        #     fecha_vencimiento=fecha_vencimiento.strftime('%d/%m/%Y')
+        # )
+        print(f"📩 Se simula envío de correo a {cliente.email}")
 
         flash("✅ Mensualidad registrada y correo enviado al cliente")
         return redirect(url_for("mensualidades"))
 
     return render_template("admin/mensualidades.html", registros=registros, hoy=hoy)
+
 
 
 
