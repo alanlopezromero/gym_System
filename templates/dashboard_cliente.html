@@ -18,28 +18,45 @@
         </div>
 
     {% else %}
-        <div class="card 
-            {% if estado == 'activo' %}activo{% endif %}
-            {% if estado == 'por_vencer' %}alerta{% endif %}
-            {% if estado == 'vencido' %}vencido{% endif %}
+        <div class="card
+            {% if estado == 'activo' %} activo{% endif %}
+            {% if estado == 'por_vencer' %} alerta{% endif %}
+            {% if estado == 'vencido' %} vencido{% endif %}
         ">
+
             <h2>
                 {% if estado == "activo" %}✅ Membresía activa{% endif %}
-                {% if estado == "por_vencer" %}⚠️ Por vencer{% endif %}
-                {% if estado == "vencido" %}❌ Membresía vencida{% endif %}
+                {% elif estado == "por_vencer" %}⚠️ Membresía por vencer{% endif %}
+                {% elif estado == "vencido" %}❌ Membresía vencida{% endif %}
             </h2>
 
-            <p><strong>Nombre:</strong> {{ mensualidad.nombre }} {{ mensualidad.apellidos }}</p>
-            <p><strong>Fecha de pago:</strong> {{ mensualidad.fecha_pago.strftime('%d/%m/%Y') }}</p>
-            <p><strong>Fecha de vencimiento:</strong> {{ mensualidad.fecha_vencimiento.strftime('%d/%m/%Y') }}</p>
-            <p><strong>Monto:</strong> ${{ mensualidad.monto }}</p>
+            <p>
+                <strong>Nombre:</strong>
+                {{ mensualidad.nombre }} {{ mensualidad.apellidos }}
+            </p>
 
-            {% if estado != "vencido" %}
+            <p>
+                <strong>Fecha de pago:</strong>
+                {{ mensualidad.fecha_pago.strftime('%d/%m/%Y') }}
+            </p>
+
+            <p>
+                <strong>Fecha de vencimiento:</strong>
+                {{ mensualidad.fecha_vencimiento.strftime('%d/%m/%Y') }}
+            </p>
+
+            <p>
+                <strong>Monto:</strong>
+                ${{ "%.2f"|format(mensualidad.monto) }}
+            </p>
+
+            {% if estado != "vencido" and qr_url %}
                 <hr>
                 <h3>📱 Código QR de acceso</h3>
                 <img src="{{ qr_url }}" alt="QR Cliente" class="qr-img">
                 <p>Presenta este código en recepción</p>
             {% endif %}
+
         </div>
     {% endif %}
 

@@ -617,35 +617,41 @@ from datetime import date, timedelta
 @login_cliente_required
 def dashboard_cliente():
     cliente_id = session['cliente_id']
-
-    # Obtenemos la última mensualidad del cliente
-    mensualidad = Mensualidad.query.filter_by(
-        cliente_id=cliente_id
-    ).order_by(Mensualidad.fecha_vencimiento.desc()).first()
-
     hoy = date.today()
+
+    # 🔹 Última mensualidad del cliente
+    mensualidad = (
+        Mensualidad.query
+        .filter_by(cliente_id=cliente_id)
+        .order_by(Mensualidad.fecha_vencimiento.desc())
+        .first()
+    )
 
     if not mensualidad:
         estado = "sin_membresia"
+        fecha_vencimiento = None
         qr_url = None
     else:
-        # Calculamos el estado
         if hoy > mensualidad.fecha_vencimiento:
             estado = "vencido"
+            qr_url = None
         elif hoy >= mensualidad.fecha_vencimiento - timedelta(days=2):
             estado = "por_vencer"
+            qr_url = generar_qr_cliente(cliente_id)
         else:
             estado = "activo"
+            qr_url = generar_qr_cliente(cliente_id)
 
-        # Generar QR si no existe y si no está vencido
-        qr_url = generar_qr_cliente(cliente_id) if estado != "vencido" else None
+        fecha_vencimiento = mensualidad.fecha_vencimiento
 
     return render_template(
         "dashboard_cliente.html",
         mensualidad=mensualidad,
         estado=estado,
+        fecha_vencimiento=fecha_vencimiento,
         qr_url=qr_url
     )
+
 
 
 @app.route("/admin/mensualidad/crear/<int:cliente_id>", methods=["POST"])
