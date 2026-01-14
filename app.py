@@ -307,7 +307,8 @@ Tu membresía en YGM ha sido activada correctamente.
 
 ¡Gracias por ser parte de YGM!
 """
-        enviar_correo_alerta(cliente.email, asunto, mensaje)
+        # enviar_correo_alerta(cliente.email, asunto, mensaje)  # temporalmente deshabilitado
+        print(f"📩 Se simula envío de correo a {cliente.email}")
 
         flash("✅ Mensualidad registrada y correo enviado al cliente")
         return redirect(url_for("mensualidades"))
