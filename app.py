@@ -1,13 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date, timedelta
-from flask_apscheduler import APScheduler
 from sqlalchemy import text
 import os
-import re
-
 
 app = Flask(__name__)
 
@@ -30,82 +26,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-# -----------------------------
-# CORREO (Flask-Mail)
-# -----------------------------
-app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = True       # TLS para puerto 587
-app.config['MAIL_USE_SSL'] = False      # No usar SSL si TLS está activo
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')  # correo
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # contraseña de app
-app.config['MAIL_DEFAULT_SENDER'] = ("Gym System", os.environ.get('MAIL_USERNAME'))
-
-mail = Mail(app)
-
-import os
-from flask_mail import Message
-
-def enviar_correo(destinatario, asunto, nombre=None, fecha_vencimiento=None, mensaje_personalizado=None):
-    """
-    Envía un correo usando Flask-Mail.
-    """
-
-    # 🚫 Render no permite envíos SMTP directos (evita timeout)
-    if os.environ.get("RENDER"):
-        print("📨 Correo omitido en Render")
-        return
-
-    try:
-        if mensaje_personalizado:
-            cuerpo = mensaje_personalizado
-        elif nombre and fecha_vencimiento:
-            cuerpo = f"""
-Hola {nombre},
-
-Hemos recibido tu pago de mensualidad.
-Tu próxima fecha de vencimiento es: {fecha_vencimiento}
-
-Gracias por tu preferencia.
-            """
-        else:
-            cuerpo = "Este es un mensaje automático de tu sistema."
-
-        msg = Message(
-            subject=asunto,
-            recipients=[destinatario],
-            body=cuerpo,
-            sender=app.config['MAIL_DEFAULT_SENDER']
-        )
-
-        mail.send(msg)
-        print(f"✅ Correo enviado a {destinatario}")
-
-    except Exception as e:
-        print(f"❌ Error al enviar correo a {destinatario}: {e}")
 
 
-def revisar_mensualidades():
-    hoy = date.today()
-    mensualidades = Mensualidad.query.all()
-
-    for m in mensualidades:
-        dias_restantes = (m.fecha_vencimiento - hoy).days
-
-        if dias_restantes == 2:
-            # ⚠️ 2 días antes
-            enviar_correo(
-                destinatario=m.cliente.email,
-                asunto="⚠️ Tu membresía está por vencer",
-                mensaje_personalizado=f"Hola {m.cliente.nombre}, tu membresía vence el {m.fecha_vencimiento.strftime('%d/%m/%Y')}. ¡Renueva a tiempo!"
-            )
-        elif dias_restantes == 0:
-            # ❌ Día de vencimiento
-            enviar_correo(
-                destinatario=m.cliente.email,
-                asunto="❌ Tu membresía vence hoy",
-                mensaje_personalizado=f"Hola {m.cliente.nombre}, tu membresía vence hoy ({m.fecha_vencimiento.strftime('%d/%m/%Y')}). Por favor acude a renovación."
-            )
 
 
 class Cliente(db.Model):
@@ -114,7 +36,8 @@ class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     apellido = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False, unique=True)
+    telefono = db.Column(db.String(20), nullable=False)
+
 
 
 
@@ -198,9 +121,8 @@ def calcular_estado_mensualidad(mensualidad):
 
 from werkzeug.security import generate_password_hash
 
-if DATABASE_URL is None:
-    with app.app_context():
-        db.create_all()
+with app.app_context():
+    db.create_all()
 
 
     admin = Admin.query.filter_by(usuario="adminJuan").first()
@@ -271,7 +193,6 @@ def test_db():
     except Exception as e:
         return f"Error: {e}"
 
-
 @app.route("/admin/mensualidades", methods=["GET", "POST"])
 def mensualidades():
     if "admin_id" not in session:
@@ -281,27 +202,36 @@ def mensualidades():
     registros = Mensualidad.query.order_by(Mensualidad.id.desc()).all()
 
     if request.method == "POST":
+        # 📥 DATOS DEL FORMULARIO
         nombre = request.form.get("nombre").strip()
         apellidos = request.form.get("apellidos").strip()
-        email = request.form.get("email").strip().lower()  # Nuevo campo
-
-        # ✅ VALIDACIÓN DEL EMAIL
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            flash("❌ Email inválido")
-            return redirect(url_for("mensualidades"))
+        telefono = request.form.get("telefono").strip()  # 👈 IMPORTANTE
 
         monto = float(request.form.get("monto"))
-        fecha_pago = datetime.strptime(request.form.get("fecha_pago"), "%Y-%m-%d").date()
+        fecha_pago = datetime.strptime(
+            request.form.get("fecha_pago"),
+            "%Y-%m-%d"
+        ).date()
+
         fecha_vencimiento = fecha_pago + timedelta(days=30)
 
-        # 🔒 BUSCAR CLIENTE EXISTENTE POR EMAIL
-        cliente = Cliente.query.filter_by(email=email).first()
-        if not cliente:
-            cliente = Cliente(nombre=nombre, apellido=apellidos, email=email)
-            db.session.add(cliente)
-            db.session.commit()  # ID real
+        # 🔍 BUSCAR CLIENTE
+        cliente = Cliente.query.filter_by(
+            nombre=nombre,
+            apellido=apellidos
+        ).first()
 
-        # 🔒 CREAR MENSUALIDAD
+        # ➕ CREAR CLIENTE SI NO EXISTE
+        if not cliente:
+            cliente = Cliente(
+                nombre=nombre,
+                apellido=apellidos,
+                telefono=telefono  # 👈 SE GUARDA EL TELÉFONO
+            )
+            db.session.add(cliente)
+            db.session.commit()
+
+        # ➕ CREAR MENSUALIDAD
         nueva = Mensualidad(
             cliente_id=cliente.id,
             nombre=cliente.nombre,
@@ -311,37 +241,18 @@ def mensualidades():
             fecha_vencimiento=fecha_vencimiento,
             estado="activo"
         )
+
         db.session.add(nueva)
         db.session.commit()
 
-        # 🔹 ENVIAR CORREO INMEDIATO
-        asunto = "✅ Membresía YGM activa"
-        enviar_correo(
-            destinatario=cliente.email,
-            asunto=asunto,
-            nombre=cliente.nombre,
-            fecha_vencimiento=fecha_vencimiento.strftime('%d/%m/%Y')
-        )
-
-        flash("✅ Mensualidad registrada y correo enviado al cliente")
+        flash("✅ Mensualidad registrada correctamente")
         return redirect(url_for("mensualidades"))
 
-    return render_template("admin/mensualidades.html", registros=registros, hoy=hoy)
-
-
-
-from flask_apscheduler import APScheduler
-
-if os.environ.get("RENDER") is None:
-    scheduler = APScheduler()
-    scheduler.init_app(app)
-    scheduler.start()
-
-    @scheduler.task('cron', id='revisar_mensualidades', hour=8)
-    def tarea_diaria():
-        with app.app_context():
-            revisar_mensualidades()
-
+    return render_template(
+        "admin/mensualidades.html",
+        registros=registros,
+        hoy=hoy
+    )
 
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
