@@ -269,14 +269,10 @@ def mensualidades():
             request.form.get("fecha_pago"),
             "%Y-%m-%d"
         ).date()
-
         fecha_vencimiento = fecha_pago + timedelta(days=30)
 
-        # 🔍 BUSCAR CLIENTE
-        cliente = Cliente.query.filter_by(
-            nombre=nombre,
-            apellido=apellidos
-        ).first()
+        # 🔍 BUSCAR CLIENTE POR TELÉFONO (más confiable)
+        cliente = Cliente.query.filter_by(telefono=telefono).first()
 
         # ➕ CREAR CLIENTE SI NO EXISTE
         if not cliente:
@@ -298,7 +294,6 @@ def mensualidades():
             fecha_vencimiento=fecha_vencimiento,
             estado="activo"
         )
-
         db.session.add(nueva)
         db.session.commit()
 
@@ -310,17 +305,28 @@ def mensualidades():
             f"📅 Vence el: {fecha_vencimiento.strftime('%d/%m/%Y')}\n\n"
             f"¡Gracias por entrenar con nosotros 💪!"
         )
-
         enviar_whatsapp(cliente.telefono, mensaje_registro)
 
         flash("✅ Mensualidad registrada y WhatsApp enviado correctamente")
         return redirect(url_for("mensualidades"))
+
+    # 🔔 Actualizar estado de mensualidades para avisos
+    for m in registros:
+        dias_restantes = (m.fecha_vencimiento - hoy).days
+        if dias_restantes < 0:
+            m.estado = "vencido"
+        elif dias_restantes <= 2:
+            m.estado = "por_vencer"
+        else:
+            m.estado = "activo"
+    db.session.commit()
 
     return render_template(
         "admin/mensualidades.html",
         registros=registros,
         hoy=hoy
     )
+
 
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
