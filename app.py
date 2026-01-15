@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date, timedelta
 from sqlalchemy import text
+from twilio.rest import Client
 import os
 
 app = Flask(__name__)
@@ -25,6 +26,60 @@ app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
+from flask_apscheduler import APScheduler
+
+if os.environ.get("RENDER") is None:
+    scheduler = APScheduler()
+    scheduler.init_app(app)
+    scheduler.start()
+
+    @scheduler.task("cron", id="aviso_dos_dias", hour=9)
+    def tarea_aviso_dos_dias():
+        with app.app_context():
+            aviso_dos_dias_antes()
+
+
+def enviar_whatsapp(telefono, mensaje):
+    try:
+        account_sid = os.environ.get("TWILIO_ACCOUNT_SID")
+        auth_token = os.environ.get("TWILIO_AUTH_TOKEN")
+        from_whatsapp = os.environ.get("TWILIO_WHATSAPP_FROM")
+
+        client = Client(account_sid, auth_token)
+
+        client.messages.create(
+            from_=from_whatsapp,
+            to=f"whatsapp:+52{telefono}",
+            body=mensaje
+        )
+
+        print("✅ WhatsApp enviado correctamente")
+
+    except Exception as e:
+        print("❌ Error enviando WhatsApp:", e)
+
+def aviso_dos_dias_antes():
+    hoy = date.today()
+    objetivo = hoy + timedelta(days=2)
+
+    mensualidades = Mensualidad.query.filter(
+        Mensualidad.fecha_vencimiento == objetivo,
+        Mensualidad.estado == "activo"
+    ).all()
+
+    for m in mensualidades:
+        cliente = m.cliente
+
+        mensaje = (
+            f"⚠️ *Gym YGM*\n\n"
+            f"Hola *{cliente.nombre}* 👋\n\n"
+            f"Tu mensualidad vence en *2 días* 📅\n"
+            f"🗓 Fecha de vencimiento: {m.fecha_vencimiento.strftime('%d/%m/%Y')}\n\n"
+            f"Evita recargos y sigue entrenando 💪"
+        )
+
+        enviar_whatsapp(cliente.telefono, mensaje)
 
 
 
@@ -205,7 +260,7 @@ def mensualidades():
         # 📥 DATOS DEL FORMULARIO
         nombre = request.form.get("nombre").strip()
         apellidos = request.form.get("apellidos").strip()
-        telefono = request.form.get("telefono").strip()  # 👈 IMPORTANTE
+        telefono = request.form.get("telefono").strip()
 
         monto = float(request.form.get("monto"))
         fecha_pago = datetime.strptime(
@@ -226,7 +281,7 @@ def mensualidades():
             cliente = Cliente(
                 nombre=nombre,
                 apellido=apellidos,
-                telefono=telefono  # 👈 SE GUARDA EL TELÉFONO
+                telefono=telefono
             )
             db.session.add(cliente)
             db.session.commit()
@@ -245,7 +300,18 @@ def mensualidades():
         db.session.add(nueva)
         db.session.commit()
 
-        flash("✅ Mensualidad registrada correctamente")
+        # 📲 MENSAJE WHATSAPP DE REGISTRO
+        mensaje_registro = (
+            f"🏋️‍♂️ *Gym YGM*\n\n"
+            f"Hola *{cliente.nombre}* 👋\n"
+            f"Tu mensualidad fue registrada correctamente ✅\n\n"
+            f"📅 Vence el: {fecha_vencimiento.strftime('%d/%m/%Y')}\n\n"
+            f"¡Gracias por entrenar con nosotros 💪!"
+        )
+
+        enviar_whatsapp(cliente.telefono, mensaje_registro)
+
+        flash("✅ Mensualidad registrada y WhatsApp enviado correctamente")
         return redirect(url_for("mensualidades"))
 
     return render_template(

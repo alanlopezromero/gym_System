@@ -15,8 +15,13 @@
         <input type="text" name="nombre" placeholder="Nombre" required>
         <input type="text" name="apellidos" placeholder="Apellidos" required>
 
-        <!-- EMAIL (CLAVE PARA SINCRONIZAR CORREO) -->
-        <input type="email" name="email" placeholder="Correo del cliente" required>
+        <!-- 📞 TELÉFONO -->
+        <input type="text"
+               name="telefono"
+               placeholder="Teléfono (WhatsApp)"
+               required
+               pattern="[0-9]{10}"
+               title="Ingresa un número de 10 dígitos">
 
         <input type="number" step="0.01" name="monto" placeholder="Monto $" required>
         <input type="date" name="fecha_pago" required>
@@ -30,7 +35,7 @@
             <thead>
                 <tr>
                     <th>Cliente</th>
-                    <th>Correo</th>
+                    <th>Teléfono</th>
                     <th>Monto</th>
                     <th>Fecha de Pago</th>
                     <th>Fecha de Vencimiento</th>
@@ -46,7 +51,7 @@
                     {% endif %}
                 ">
                     <td>{{ m.nombre }} {{ m.apellidos }}</td>
-                    <td>{{ m.cliente.email if m.cliente else m.email }}</td>
+                    <td>{{ m.cliente.telefono }}</td>
                     <td>${{ "%.2f"|format(m.monto) }}</td>
                     <td>{{ m.fecha_pago.strftime('%d/%m/%Y') }}</td>
                     <td>{{ m.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
