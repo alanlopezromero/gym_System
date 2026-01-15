@@ -75,11 +75,11 @@ def aviso_dos_dias_antes():
 
     for mensualidad, cliente in resultados:
         mensaje = (
-            f"⚠️ *Gym YGM*\n\n"
+            f"⚠️ *YGM ARCADIA'S*\n\n"
             f"Hola *{cliente.nombre}* 👋\n\n"
             f"Tu mensualidad vence en *2 días* 📅\n"
             f"🗓 Fecha de vencimiento: {mensualidad.fecha_vencimiento.strftime('%d/%m/%Y')}\n\n"
-            f"Evita recargos y sigue entrenando 💪"
+            f"Sigue entrenando y nunca dejes el YGM ARCADIA'S💪"
         )
 
         enviar_whatsapp(cliente.telefono, mensaje)
@@ -299,7 +299,7 @@ def mensualidades():
 
         # 📲 MENSAJE WHATSAPP DE REGISTRO
         mensaje_registro = (
-            f"🏋️‍♂️ *Gym ARCADIA'S*\n\n"
+            f"🏋️‍♂️ *YGM ARCADIA'S*\n\n"
             f"Hola *{cliente.nombre}* 👋\n"
             f"Tu mensualidad fue registrada correctamente ✅\n\n"
             f"📅 Vence el: {fecha_vencimiento.strftime('%d/%m/%Y')}\n\n"
