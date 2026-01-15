@@ -299,7 +299,7 @@ def mensualidades():
 
         # 📲 MENSAJE WHATSAPP DE REGISTRO
         mensaje_registro = (
-            f"🏋️‍♂️ *Gym YGM*\n\n"
+            f"🏋️‍♂️ *Gym ARCADIA'S*\n\n"
             f"Hola *{cliente.nombre}* 👋\n"
             f"Tu mensualidad fue registrada correctamente ✅\n\n"
             f"📅 Vence el: {fecha_vencimiento.strftime('%d/%m/%Y')}\n\n"
