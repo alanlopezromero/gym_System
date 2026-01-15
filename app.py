@@ -43,18 +43,19 @@ app.config['MAIL_DEFAULT_SENDER'] = ("Gym System", os.environ.get('MAIL_USERNAME
 
 mail = Mail(app)
 
+import os
+from flask_mail import Message
 
 def enviar_correo(destinatario, asunto, nombre=None, fecha_vencimiento=None, mensaje_personalizado=None):
     """
     Envía un correo usando Flask-Mail.
-
-    Parámetros:
-    - destinatario: str, email del usuario
-    - asunto: str, asunto del correo
-    - nombre: str, nombre del usuario (opcional)
-    - fecha_vencimiento: str, fecha de vencimiento (opcional)
-    - mensaje_personalizado: str, si quieres enviar un mensaje diferente al predeterminado
     """
+
+    # 🚫 Render no permite envíos SMTP directos (evita timeout)
+    if os.environ.get("RENDER"):
+        print("📨 Correo omitido en Render")
+        return
+
     try:
         if mensaje_personalizado:
             cuerpo = mensaje_personalizado
@@ -79,8 +80,10 @@ Gracias por tu preferencia.
 
         mail.send(msg)
         print(f"✅ Correo enviado a {destinatario}")
+
     except Exception as e:
         print(f"❌ Error al enviar correo a {destinatario}: {e}")
+
 
 def revisar_mensualidades():
     hoy = date.today()
