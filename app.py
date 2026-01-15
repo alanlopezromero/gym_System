@@ -63,24 +63,26 @@ def aviso_dos_dias_antes():
     hoy = date.today()
     objetivo = hoy + timedelta(days=2)
 
-    mensualidades = Mensualidad.query.filter(
-        Mensualidad.fecha_vencimiento == objetivo,
-        Mensualidad.estado == "activo"
-    ).all()
+    resultados = (
+        db.session.query(Mensualidad, Cliente)
+        .join(Cliente, Mensualidad.cliente_id == Cliente.id)
+        .filter(
+            Mensualidad.fecha_vencimiento == objetivo,
+            Mensualidad.estado == "activo"
+        )
+        .all()
+    )
 
-    for m in mensualidades:
-        cliente = m.cliente
-
+    for mensualidad, cliente in resultados:
         mensaje = (
             f"⚠️ *Gym YGM*\n\n"
             f"Hola *{cliente.nombre}* 👋\n\n"
             f"Tu mensualidad vence en *2 días* 📅\n"
-            f"🗓 Fecha de vencimiento: {m.fecha_vencimiento.strftime('%d/%m/%Y')}\n\n"
+            f"🗓 Fecha de vencimiento: {mensualidad.fecha_vencimiento.strftime('%d/%m/%Y')}\n\n"
             f"Evita recargos y sigue entrenando 💪"
         )
 
         enviar_whatsapp(cliente.telefono, mensaje)
-
 
 
 

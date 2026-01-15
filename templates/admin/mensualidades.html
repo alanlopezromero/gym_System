@@ -51,7 +51,8 @@
                     {% endif %}
                 ">
                     <td>{{ m.nombre }} {{ m.apellidos }}</td>
-                    <td>{{ m.cliente.telefono }}</td>
+                    <!-- Usamos el campo duplicado telefono -->
+                    <td>{{ m.telefono }}</td>
                     <td>${{ "%.2f"|format(m.monto) }}</td>
                     <td>{{ m.fecha_pago.strftime('%d/%m/%Y') }}</td>
                     <td>{{ m.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
