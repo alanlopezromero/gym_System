@@ -46,6 +46,9 @@ def enviar_whatsapp(telefono, mensaje):
         auth_token = os.environ.get("TWILIO_AUTH_TOKEN")
         from_whatsapp = os.environ.get("TWILIO_WHATSAPP_FROM")
 
+        
+        # 👇 ESTE PRINT ES EL QUE AGREGAS
+        print("📲 FROM WHATSAPP:", from_whatsapp)
         client = Client(account_sid, auth_token)
 
         client.messages.create(
