@@ -284,12 +284,12 @@ table {
 
 /* Por vencer */
 .card.alerta {
-    background: #FFA500; /* naranja */
+    background: #ffa600; /* naranja */
 }
 
 /* Vencido */
 .card.vencido {
-    background: #f44336; /* rojo */
+    background: #e50f00; /* rojo */
 }
 
 /* Sin membresía */
