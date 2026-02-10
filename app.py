@@ -21,11 +21,20 @@ app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 # -----------------------------
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# Compatibilidad con Heroku/Render PostgreSQL
-if DATABASE_URL and "sslmode" not in DATABASE_URL:
-    DATABASE_URL += "?sslmode=require"
+# Compatibilidad con Render / Heroku
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
+if DATABASE_URL:
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "connect_args": {"sslmode": "require"},
+        "pool_pre_ping": True,
+        "pool_recycle": 280,
+    }
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
