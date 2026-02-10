@@ -1,9 +1,9 @@
+from sqlalchemy.pool import NullPool
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date, timedelta
 from sqlalchemy import text
-from sqlalchemy.pool import NullPool
 from twilio.rest import Client
 import os
 
@@ -28,13 +28,14 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
 if DATABASE_URL:
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "poolclass": NullPool,          # 🔥 CLAVE
+        "poolclass": NullPool,           # 🔥 ESTO es lo que faltaba
         "connect_args": {"sslmode": "require"},
     }
 else:
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db = SQLAlchemy(app)
 
 
