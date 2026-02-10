@@ -8,23 +8,25 @@ from twilio.rest import Client
 import os
 
 app = Flask(__name__)
-
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# FIX Render / PostgreSQL
-if DATABASE_URL and "sslmode" not in DATABASE_URL:
-    DATABASE_URL += "?sslmode=require"
+# 🔐 FIX DEFINITIVO RENDER + POSTGRES
+if DATABASE_URL:
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "poolclass": NullPool,
+        "connect_args": {
+            "sslmode": "require"
+        }
+    }
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "poolclass": NullPool
-}
-
-db = SQLAlchemy(app)   # 🔥 SOLO AQUÍ
+db = SQLAlchemy(app)
 
 
 from flask_apscheduler import APScheduler
