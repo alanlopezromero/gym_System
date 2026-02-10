@@ -13,14 +13,13 @@ app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "poolclass": NullPool,
+    "pool_pre_ping": True,      # 🔥 ESTA ES LA QUE FALTABA
     "connect_args": {
         "sslmode": "require"
     }
 }
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
