@@ -1,4 +1,3 @@
-from sqlalchemy.pool import NullPool
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,34 +8,23 @@ import os
 
 app = Flask(__name__)
 
-# -----------------------------
-# SECRET KEY
-# -----------------------------
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
-# -----------------------------
-# BASE DE DATOS
-# -----------------------------
-# -----------------------------
-# BASE DE DATOS
-# -----------------------------
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+# FIX Render / PostgreSQL
+if DATABASE_URL and "sslmode" not in DATABASE_URL:
+    DATABASE_URL += "?sslmode=require"
 
-if DATABASE_URL:
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "poolclass": NullPool,           # 🔥 ESTO es lo que faltaba
-        "connect_args": {"sslmode": "require"},
-    }
-else:
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 280,
+}
+
+db = SQLAlchemy(app)   # 🔥 SOLO AQUÍ
 
 
 from flask_apscheduler import APScheduler
