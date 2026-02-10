@@ -17,9 +17,7 @@ if DATABASE_URL:
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "poolclass": NullPool,
-        "connect_args": {
-            "sslmode": "require"
-        }
+        "connect_args": {"sslmode": "require"}
     }
 else:
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -27,7 +25,6 @@ else:
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
-
 
 from flask_apscheduler import APScheduler
 
@@ -194,7 +191,8 @@ with app.app_context():
         )
         db.session.add(admin)
         db.session.commit()
-        print("✅ Admin creado")
+
+print("Listo ✅")
 
 
 
