@@ -22,10 +22,11 @@ app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # Compatibilidad con Heroku/Render PostgreSQL
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+if DATABASE_URL and "sslmode" not in DATABASE_URL:
+    DATABASE_URL += "?sslmode=require"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # 🔐 Fix para Render / PostgreSQL (EVITA error SSL 500)
