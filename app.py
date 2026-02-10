@@ -7,12 +7,12 @@ from sqlalchemy import text
 from twilio.rest import Client
 import os
 
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# 🔐 FIX DEFINITIVO RENDER + POSTGRES
 if DATABASE_URL:
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
