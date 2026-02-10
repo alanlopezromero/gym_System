@@ -1,4 +1,3 @@
-from sqlalchemy.pool import NullPool
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,22 +6,31 @@ from sqlalchemy import text
 from twilio.rest import Client
 import os
 
+# -----------------------------
+# APP
+# -----------------------------
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
+# -----------------------------
+# DATABASE
+# -----------------------------
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if not DATABASE_URL:
     raise RuntimeError("❌ DATABASE_URL no está definida")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "poolclass": NullPool,
-    "pool_pre_ping": True
+    "pool_pre_ping": True,   # revive conexiones muertas
+    "pool_recycle": 280      # evita timeout SSL
 }
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
 
 
 from flask_apscheduler import APScheduler
