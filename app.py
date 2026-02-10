@@ -181,20 +181,18 @@ def calcular_estado_mensualidad(mensualidad):
 
 from werkzeug.security import generate_password_hash
 
-# ⚠️ SOLO crear tablas y admin en LOCAL, NO en Render
-if os.environ.get("RENDER") is None:
-    with app.app_context():
-        db.create_all()
+with app.app_context():
+    db.create_all()
 
-        admin = Admin.query.filter_by(usuario="adminJuan").first()
-        if not admin:
-            admin = Admin(
-                usuario="adminJuan",
-                password=generate_password_hash("system58")
-            )
-            db.session.add(admin)
-            db.session.commit()
-            print("✅ Admin creado")
+    admin = Admin.query.filter_by(usuario="adminJuan").first()
+    if not admin:
+        admin = Admin(
+            usuario="adminJuan",
+            password=generate_password_hash("system58")
+        )
+        db.session.add(admin)
+        db.session.commit()
+        print("✅ Admin creado")
 
 
 
