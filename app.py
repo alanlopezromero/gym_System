@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date, timedelta
 from sqlalchemy import text
+from sqlalchemy.pool import NullPool
 from twilio.rest import Client
 import os
 
@@ -21,30 +22,21 @@ app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 # -----------------------------
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# Compatibilidad con Render / Heroku
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 if DATABASE_URL:
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "poolclass": NullPool,          # 🔥 CLAVE
         "connect_args": {"sslmode": "require"},
-        "pool_pre_ping": True,
-        "pool_recycle": 280,
     }
 else:
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# 🔐 Fix para Render / PostgreSQL (EVITA error SSL 500)
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_pre_ping": True,
-    "pool_recycle": 280,
-}
-
 db = SQLAlchemy(app)
+
 
 from flask_apscheduler import APScheduler
 
