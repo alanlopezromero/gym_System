@@ -12,14 +12,14 @@ app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-if DATABASE_URL:
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "poolclass": NullPool,
-        "connect_args": {"sslmode": "require"}
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "poolclass": NullPool,
+    "connect_args": {
+        "sslmode": "require"
     }
-else:
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+}
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
