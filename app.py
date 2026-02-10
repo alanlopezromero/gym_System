@@ -11,16 +11,17 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 
+if not DATABASE_URL:
+    raise RuntimeError("❌ DATABASE_URL no está definida")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "poolclass": NullPool,
-    "connect_args": {
-        "sslmode": "require"
-    }
+    "pool_pre_ping": True
 }
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db = SQLAlchemy(app)
 
 
