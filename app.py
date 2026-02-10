@@ -321,6 +321,17 @@ def mensualidades():
         hoy=hoy
     )
 
+from app import app, db, Admin
+from werkzeug.security import generate_password_hash
+
+with app.app_context():
+    admin = Admin(
+        usuario="adminJuan",
+        password=generate_password_hash("system58")
+    )
+    db.session.add(admin)
+    db.session.commit()
+
 
 
 @app.route("/admin/mensualidades/eliminar/<int:id>", methods=["POST"])
