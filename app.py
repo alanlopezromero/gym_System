@@ -7,7 +7,6 @@ from sqlalchemy import text
 from twilio.rest import Client
 import os
 
-
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "clave-temporal-dev")
 
@@ -177,22 +176,6 @@ def calcular_estado_mensualidad(mensualidad):
     else:
         return "activo"
 
-
-from werkzeug.security import generate_password_hash
-
-with app.app_context():
-    db.create_all()
-
-    admin = Admin.query.filter_by(usuario="adminJuan").first()
-    if not admin:
-        admin = Admin(
-            usuario="adminJuan",
-            password=generate_password_hash("system58")
-        )
-        db.session.add(admin)
-        db.session.commit()
-
-print("Listo ✅")
 
 
 
